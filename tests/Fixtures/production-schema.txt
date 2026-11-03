@@ -1,0 +1,98 @@
+files	1	id	int	NO	<NULL>			auto_increment	PRI
+files	2	user_id	int	YES	<NULL>				MUL
+files	3	nama_file	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+files	4	path_file	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+files	5	uploaded_at	timestamp	NO	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+guru_staff	1	id	int	NO	<NULL>			auto_increment	PRI
+guru_staff	2	name	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	3	email	varchar(20)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	4	role	enum('principal','vice_principal','program_head','teacher','staff')	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		MUL
+guru_staff	5	type	varchar(50)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		MUL
+guru_staff	6	subject	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	7	expertise	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	8	position	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	9	image	longtext	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+guru_staff	10	created_at	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+guru_staff	11	updated_at	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED on update CURRENT_TIMESTAMP	
+jurusan	1	id	int	NO	<NULL>			auto_increment	PRI
+jurusan	2	name	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	3	description	text	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	4	icon	varchar(50)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	5	image	longtext	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	6	video_url	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	7	color	varchar(50)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+jurusan	8	created_at	timestamp	NO	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+postingan	1	id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		PRI
+postingan	2	title	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	3	content	text	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	4	image	longtext	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	5	type	varchar(50)	YES	berita	utf8mb4	utf8mb4_unicode_ci		
+postingan	6	category	varchar(100)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	7	author	varchar(100)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	8	date	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+postingan	9	video_url	varchar(500)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan	10	video_file	longtext	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan_media	1	id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		PRI
+postingan_media	2	postingan_id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		MUL
+postingan_media	3	type	enum('image','video')	NO	image	utf8mb4	utf8mb4_unicode_ci		
+postingan_media	4	url	longtext	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+postingan_media	5	file	longblob	YES	<NULL>				
+postingan_media	6	display_order	int	YES	0				
+postingan_media	7	created_at	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+principals	1	id	int	NO	<NULL>			auto_increment	PRI
+principals	2	nama	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+principals	3	tahun_jabatan	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+principals	4	foto	text	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+principals	5	created_at	timestamp	NO	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+tentang_kami	1	id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		PRI
+tentang_kami	2	title	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami	3	description	text	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami	4	icon_type	varchar(50)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami	5	display_order	int	YES	0				
+tentang_kami	6	is_active	tinyint(1)	YES	1				
+tentang_kami	7	date	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+tentang_kami	8	updated_at	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED on update CURRENT_TIMESTAMP	
+tentang_kami_media	1	id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		PRI
+tentang_kami_media	2	tentang_kami_id	varchar(50)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		MUL
+tentang_kami_media	3	type	varchar(20)	NO	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami_media	4	url	varchar(500)	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami_media	5	file	longtext	YES	<NULL>	utf8mb4	utf8mb4_unicode_ci		
+tentang_kami_media	6	display_order	int	YES	0				
+tentang_kami_media	7	created_at	timestamp	YES	CURRENT_TIMESTAMP			DEFAULT_GENERATED	
+users	1	id	int	NO	<NULL>			auto_increment	PRI
+users	2	email	varchar(100)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		UNI
+users	3	password	varchar(255)	NO	<NULL>	utf8mb4	utf8mb4_general_ci		
+users	4	password_plain	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+users	5	role	enum('admin','user')	YES	user	utf8mb4	utf8mb4_general_ci		
+users	6	nama_file	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+users	7	path_file	varchar(255)	YES	<NULL>	utf8mb4	utf8mb4_general_ci		
+--IDX	files	PRIMARY	0	1	id
+--IDX	files	user_id	1	1	user_id
+--IDX	guru_staff	idx_role	1	1	role
+--IDX	guru_staff	idx_type	1	1	type
+--IDX	guru_staff	PRIMARY	0	1	id
+--IDX	jurusan	PRIMARY	0	1	id
+--IDX	postingan	PRIMARY	0	1	id
+--IDX	postingan_media	postingan_id	1	1	postingan_id
+--IDX	postingan_media	PRIMARY	0	1	id
+--IDX	principals	PRIMARY	0	1	id
+--IDX	tentang_kami	PRIMARY	0	1	id
+--IDX	tentang_kami_media	idx_tentang_kami_id	1	1	tentang_kami_id
+--IDX	tentang_kami_media	PRIMARY	0	1	id
+--IDX	users	email	0	1	email
+--IDX	users	PRIMARY	0	1	id
+--FK	files	files_ibfk_1	user_id	users	id
+--FK	postingan_media	postingan_media_ibfk_1	postingan_id	postingan	id
+--FK	tentang_kami_media	tentang_kami_media_ibfk_1	tentang_kami_id	tentang_kami	id
+--FKR	files_ibfk_1	CASCADE	NO ACTION
+--FKR	postingan_media_ibfk_1	CASCADE	NO ACTION
+--FKR	tentang_kami_media_ibfk_1	CASCADE	NO ACTION
+--TBL	files	InnoDB	utf8mb4_general_ci
+--TBL	guru_staff	InnoDB	utf8mb4_unicode_ci
+--TBL	jurusan	InnoDB	utf8mb4_general_ci
+--TBL	postingan	InnoDB	utf8mb4_unicode_ci
+--TBL	postingan_media	InnoDB	utf8mb4_unicode_ci
+--TBL	principals	InnoDB	utf8mb4_general_ci
+--TBL	tentang_kami	InnoDB	utf8mb4_unicode_ci
+--TBL	tentang_kami_media	InnoDB	utf8mb4_unicode_ci
+--TBL	users	InnoDB	utf8mb4_general_ci

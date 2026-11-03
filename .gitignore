@@ -1,0 +1,115 @@
+# =============================================================================
+# .gitignore - Landing Page SMK Budi Mulia
+# Prinsip: apa pun yang berisi rahasia, data pribadi siswa/guru, atau hasil
+# build/cache TIDAK boleh masuk git. Kalau ragu, ignore dulu.
+# =============================================================================
+
+# --- Kredensial & catatan pribadi --------------------------------------------
+# Semua file .env kecuali contoh (.env, .env.local, .env.production, .env.backup, dst).
+.env
+.env.*
+!.env.example
+# Catatan kerja pribadi: LOGIN.md (berisi password asli), dsb. Ditolak di mana pun, termasuk di md/.
+# Folder md/ berisi dokumen proyek (PRD, ARCHITECTURE, dst.) yang ikut git dan tidak punya .gitignore
+# sendiri: jangan taruh catatan pribadi atau kredensial di sana kecuali namanya cocok dengan pola di bawah.
+LOGIN.md
+*LOGIN*.md
+*credential*
+*kredensial*
+*secret*
+# Kunci/sertifikat & token paket
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+/auth.json
+/storage/*.key
+# Ekspor kredensial akun siswa (CSV dari dialog "Kredensial akun" / ekspor akun)
+akun-siswa*.csv
+/*.csv
+
+# --- Data produksi & data pribadi --------------------------------------------
+# Dump database (nama siswa, email, hash & password lama, foto, berkas).
+*.sql
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+/database/seeders/data/*
+!/database/seeders/data/.gitkeep
+# PDF portal siswa (SKL), cadangan database, dan cache media hasil decode base64.
+/storage/app/private/*
+!/storage/app/private/.gitignore
+/storage/app/public/*
+!/storage/app/public/.gitignore
+# Foto & video unggahan/hasil konversi (data situs). Hanya .htaccess pengamannya yang ikut git.
+/public/media/*
+!/public/media/.htaccess
+# Arsip/backup situs (mis. app.zip di akar proyek).
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
+*.bak
+*.backup
+*.old
+# Folder situs lama (sudah dihapus dari laptop pada 24 September 2026; aturan dipertahankan bila dipulihkan).
+/landing_page_production*
+
+# --- Hasil build & dependensi -------------------------------------------------
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+*.tsbuildinfo
+/dist
+/coverage
+
+# --- Log, cache, dan berkas runtime -------------------------------------------
+*.log
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/framework/testing/.gitignore
+/storage/pail
+/storage/debugbar
+.phpunit.result.cache
+/.phpunit.cache
+.eslintcache
+.php-cs-fixer.cache
+.phpactor.json
+
+# --- Editor / OS / AI tooling lokal -------------------------------------------
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+/.cursor/
+/.codex
+/.claude/settings.local.json
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+Homestead.json
+Homestead.yaml

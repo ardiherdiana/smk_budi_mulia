@@ -1,0 +1,16 @@
+# Folder unggahan foto/video: hanya file media statis yang boleh dilayani, tidak ada yang boleh dieksekusi.
+Options -ExecCGI -Indexes
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|phar|pht|php[0-9]|cgi|pl|py|sh|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+# Hanya tipe yang kita simpan sendiri; selain itu tidak dilayani.
+<FilesMatch "^(?!.*\.(jpe?g|png|webp|mp4|webm|ogv)$).*$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Cache-Control "public, max-age=2592000"
+</IfModule>
