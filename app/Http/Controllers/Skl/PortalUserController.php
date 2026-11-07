@@ -24,7 +24,7 @@ class PortalUserController extends Controller
         $perPage = in_array((int) $request->query('per_page'), [25, 50, 100], true) ? (int) $request->query('per_page') : 25;
 
         $users = User::query()
-            ->where('role', 'user')
+            ->akunSkl()
             ->where('email', '<>', 'gudang@system.internal')
             ->when($search, fn ($q) => $q->where('email', 'like', '%'.addcslashes($search, '\\%_').'%'))
             ->withCount('files')
@@ -107,7 +107,7 @@ class PortalUserController extends Controller
         ]);
 
         $credentials = [];
-        User::whereIn('id', $validated['ids'])->where('role', 'user')->get()
+        User::whereIn('id', $validated['ids'])->akunSkl()->get()
             ->each(function (User $user) use ($validated, &$credentials) {
                 $plain = $validated['password'] ?? $this->randomPassword();
                 $user->update(['password' => $plain]);
@@ -144,7 +144,7 @@ class PortalUserController extends Controller
                 continue;
             }
 
-            $user = User::where('id', $id)->where('role', 'user')->first();
+            $user = User::where('id', $id)->akunSkl()->first();
             if (! $user) {
                 $skipped++;
 
@@ -168,7 +168,7 @@ class PortalUserController extends Controller
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['ID', 'Email Siswa', 'Password Baru (isi lalu impor kembali)'], ',', '"', '');
-            User::where('role', 'user')->where('email', '<>', 'gudang@system.internal')
+            User::akunSkl()->where('email', '<>', 'gudang@system.internal')
                 ->orderBy('email')->each(fn (User $u) => fputcsv($out, [$u->id, $u->email, ''], ',', '"', ''));
             fclose($out);
         }, 'akun-siswa-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);

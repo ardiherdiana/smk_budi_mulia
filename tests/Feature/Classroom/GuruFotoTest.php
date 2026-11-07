@@ -3,6 +3,8 @@
 namespace Tests\Feature\Classroom;
 
 use App\Models\Classroom\Akun;
+use App\Models\Guru;
+use App\Models\Principal;
 use App\Models\Staff;
 use App\Services\Classroom\GuruStaffSync;
 use Database\Seeders\GuruSeeder;
@@ -182,13 +184,62 @@ class GuruFotoTest extends TestCase
         $this->assertNull($akun->fresh()->fotoUrl());
     }
 
+    public function test_data_guru_absensi_dan_classroom_memakai_foto_yang_sama_dari_website(): void
+    {
+        $dina = $this->akun('GURU', 'bu.dina', 'Dina Qoyimah');
+        $dina->forceFill(['guruStaffId' => $this->staff('Dina Qoyimah', 'teacher', 'staff-image/dina.webp')->id])->save();
+        Guru::factory()->create(['userId' => $dina->id, 'nama' => 'Dina Qoyimah', 'fotoUrl' => '/uploads/guru/absen-lama.jpg']);
+        // Di website belum ada fotonya: kedua daftar memakai foto absen lama.
+        $firdaus = $this->akun('GURU', 'firdaus', 'Muhammad Firdaus');
+        Guru::factory()->create(['userId' => $firdaus->id, 'nama' => 'Muhammad Firdaus', 'fotoUrl' => '/uploads/guru/firdaus.jpg']);
+        $this->actingAsAdmin();
+
+        $foto = fn ($daftar, string $kunci, string $username) => collect($daftar)->first(fn ($g) => data_get($g, $kunci) === $username)['fotoUrl'];
+
+        $this->get('/data-guru')->assertInertia(fn (Assert $page) => $page
+            ->where('guruList', fn ($daftar) => $foto($daftar, 'user.username', 'bu.dina') === '/media/staff-image/dina.webp'
+                && $foto($daftar, 'user.username', 'firdaus') === '/uploads/guru/firdaus.jpg'));
+        $this->get('/classroom/data-guru')->assertInertia(fn (Assert $page) => $page
+            ->where('guru.data', fn ($daftar) => $foto($daftar, 'username', 'bu.dina') === '/media/staff-image/dina.webp'
+                && $foto($daftar, 'username', 'firdaus') === '/uploads/guru/firdaus.jpg'));
+    }
+
+    public function test_ganti_foto_dari_data_guru_absensi_mengganti_foto_website(): void
+    {
+        $dina = $this->akun('GURU', 'bu.dina', 'Dina Qoyimah');
+        $dina->forceFill(['guruStaffId' => $this->staff('Dina Qoyimah', 'teacher', 'staff-image/dina.webp')->id])->save();
+        Storage::disk('media')->put('staff-image/dina.webp', 'x');
+        $absen = Guru::factory()->create(['userId' => $dina->id, 'nama' => 'Dina Qoyimah']);
+        $this->actingAsAdmin();
+
+        $this->post("/data-guru/{$absen->id}/foto", ['foto' => UploadedFile::fake()->image('baru.png', 300, 400)])->assertSessionHas('toast');
+
+        $baru = $dina->fresh()->staff->image;
+        $this->assertNotSame('staff-image/dina.webp', $baru);
+        Storage::disk('media')->assertExists($baru);
+        Storage::disk('media')->assertMissing('staff-image/dina.webp');
+        $this->assertNull($absen->fresh()->fotoUrl);
+        $this->assertSame(1, Staff::count()); // orang yang sama di website, bukan baris baru
+    }
+
+    public function test_kepala_sekolah_memakai_foto_di_bagian_kepala_sekolah_website(): void
+    {
+        Principal::create(['nama' => 'Mulyanto, S.Kom.', 'tahun_jabatan' => '2018-2022', 'foto' => 'principal-photo/31-lama.jpg']);
+        Principal::create(['nama' => 'Teti Tresnawati, M.Pd', 'tahun_jabatan' => '2022-2030', 'foto' => 'principal-photo/32-teti.jpg']);
+        $teti = $this->akun('KEPSEK', 'tetitresnawati', 'Teti Tresnawati, M.Pd.');
+        $lain = $this->akun('KEPSEK', 'kepsek.baru', 'Kepala Baru');
+
+        $this->assertSame('/media/principal-photo/32-teti.jpg', $teti->fotoUrl());
+        $this->assertNull($lain->fotoUrl());
+    }
+
     public function test_foto_guru_tampil_di_menu_pengguna_dan_profil(): void
     {
         $akun = $this->akun('GURU', 'bu.dina', 'Dina Qoyimah');
         $akun->forceFill(['guruStaffId' => $this->staff('Dina Qoyimah', 'teacher', 'staff-image/dina.webp')->id])->save();
         $this->actingAs($akun);
 
-        $this->get('/classroom/profil')->assertInertia(fn (Assert $page) => $page
+        $this->get('/profil')->assertInertia(fn (Assert $page) => $page
             ->where('akun.fotoUrl', '/media/staff-image/dina.webp')->where('auth.user.fotoUrl', '/media/staff-image/dina.webp'));
     }
 }

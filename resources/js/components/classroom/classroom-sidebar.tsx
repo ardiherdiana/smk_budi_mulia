@@ -41,6 +41,7 @@ interface NavItem {
   persis?: boolean
 }
 
+// Menu Utama untuk semua peran: sejak absensi digabung, setiap akun punya lebih dari satu modul (minimal Profil).
 const UTAMA: NavItem[] = [
   { title: "Menu Utama", url: "/menu-utama", icon: Home, persis: true },
   { title: "Beranda", url: "/classroom/kelas", icon: House, persis: true },
@@ -77,9 +78,6 @@ export function ClassroomSidebar({ ...props }: React.ComponentProps<typeof Sideb
   const kelasSaya = pageProps.kelasSaya ?? []
   const role = user?.role ?? "SISWA"
   const lihatData = role === "ADMIN" || role === "KEPSEK"
-  // Guru dan kepsek hanya punya modul Classroom, jadi tidak perlu tautan ke menu pemilih modul.
-  const punyaMenuUtama = role === "ADMIN" || role === "SISWA"
-  const itemUtama = UTAMA.filter((item) => item.url !== "/menu-utama" || punyaMenuUtama)
 
   function tutupMobile() {
     if (isMobile) setOpenMobile(false)
@@ -117,7 +115,7 @@ export function ClassroomSidebar({ ...props }: React.ComponentProps<typeof Sideb
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>{itemUtama.map(renderItem)}</SidebarMenu>
+            <SidebarMenu>{UTAMA.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 

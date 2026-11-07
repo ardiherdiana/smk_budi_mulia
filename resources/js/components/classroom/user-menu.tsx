@@ -1,6 +1,6 @@
 import * as React from "react"
-import { Link, router } from "@inertiajs/react"
-import { LogOut, UserRound } from "lucide-react"
+import { router } from "@inertiajs/react"
+import { LogOut } from "lucide-react"
 
 import { useAuth } from "@/context/classroom-auth"
 import { initials } from "@/lib/classroom/utils"
@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 const LABEL_ROLE = { ADMIN: "Admin", KEPSEK: "Kepala sekolah", GURU: "Guru", SISWA: "Siswa" } as const
 
-/** Avatar di pojok kanan atas: nama, peran, tautan Profil, dan Keluar. */
+/** Avatar di pojok kanan atas: nama, peran, dan Keluar. Profil dibuka dari kartu Profil di Menu Utama (satu untuk semua modul). */
 export function UserMenu() {
   const { user } = useAuth()
   const [buka, setBuka] = React.useState(false)
@@ -45,14 +45,6 @@ export function UserMenu() {
             </p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          className="justify-start gap-3"
-          render={<Link href="/classroom/profil" />}
-          onClick={() => setBuka(false)}
-        >
-          <UserRound /> Profil
-        </Button>
         <Button
           variant="ghost"
           className="justify-start gap-3"

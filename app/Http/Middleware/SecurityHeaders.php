@@ -11,7 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Header keamanan untuk semua respons web. CSP membatasi sumber script ke
  * origin sendiri (tanpa inline script), hanya mengizinkan embed YouTube &
- * OpenStreetMap; gambar/video berasal dari /media (origin sendiri) atau data:/blob:.
+ * OpenStreetMap; gambar/video berasal dari /media (origin sendiri) atau data:/blob:, plus tile peta OpenStreetMap
+ * untuk modul absensi.
  */
 class SecurityHeaders
 {
@@ -27,7 +28,10 @@ class SecurityHeaders
         $headers->set('X-Content-Type-Options', 'nosniff');
         $headers->set('X-Frame-Options', 'SAMEORIGIN');
         $headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+        // Kamera (scan QR kiosk/briefing) dan lokasi (absen web) dipakai modul absensi. Harus berlaku global, bukan per
+        // rute: aplikasi ini SPA, jadi kebijakan dokumen pertama (mis. /login) tetap berlaku sesudah navigasi Inertia.
+        // `(self)` = hanya origin sendiri; browser tetap meminta izin pengguna, dan halaman publik tidak memakainya.
+        $headers->set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self), payment=(), usb=()');
         $headers->set('Cross-Origin-Opener-Policy', 'same-origin');
         $headers->set('Content-Security-Policy', $this->csp($nonce));
 
@@ -62,7 +66,8 @@ class SecurityHeaders
             "default-src 'self'",
             'script-src '.implode(' ', array_filter($script)),
             'style-src '.implode(' ', array_filter($style)),
-            "img-src 'self' data: blob: https://i.ytimg.com",
+            // Tile peta Leaflet (lokasi absen guru) dari OpenStreetMap.
+            "img-src 'self' data: blob: https://i.ytimg.com https://*.tile.openstreetmap.org",
             "media-src 'self' blob:",
             'font-src '.implode(' ', array_filter($font)),
             'connect-src '.implode(' ', array_filter($connect)),

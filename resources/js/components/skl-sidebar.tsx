@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Link, router, usePage } from "@inertiajs/react"
-import { Files, Home, KeyRound, LayoutDashboard, LogOut, UserRound } from "lucide-react"
+import { Files, Home, LayoutDashboard, LogOut, UserRound } from "lucide-react"
 
 import { useAuth } from "@/context/auth-context"
 import {
@@ -17,7 +17,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { PasswordDialog } from "@/components/password-dialog"
 
 interface NavItem {
   title: string
@@ -54,7 +53,6 @@ export function SklSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { url } = usePage()
   const pathname = url.split("?")[0]
   const { isMobile, setOpenMobile } = useSidebar()
-  const [passwordOpen, setPasswordOpen] = React.useState(false)
 
   return (
     <Sidebar {...props}>
@@ -92,19 +90,6 @@ export function SklSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
-        <SidebarGroup>
-          <SidebarGroupLabel>Sistem</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setPasswordOpen(true)}>
-                  <KeyRound />
-                  Ganti Password
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -122,7 +107,6 @@ export function SklSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
-      <PasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} />
     </Sidebar>
   )
 }

@@ -54,7 +54,10 @@ class PortalFileAccessTest extends TestCase
     {
         $this->file($this->student());
 
-        $this->get('/uploads/1700000000_abc.pdf')->assertNotFound();
+        // `/uploads/{path}` sekarang rute absensi (foto guru, lampiran izin) di disk `public`, khusus staf: tamu
+        // dialihkan ke login dan staf pun tidak menemukan PDF SKL (disimpan di disk `local`, storage/app/private).
+        $this->get('/uploads/1700000000_abc.pdf')->assertRedirect('/login');
+        $this->actingAs($this->admin())->get('/uploads/1700000000_abc.pdf')->assertNotFound();
         $this->get('/storage/uploads/1700000000_abc.pdf')->assertNotFound();
     }
 

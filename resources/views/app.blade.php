@@ -20,6 +20,11 @@
         } catch (e) {}
     </script>
 
+    {{-- route() untuk halaman SPPD (hanya rute sppd.*, lihat config/ziggy.php); skrip inline butuh nonce CSP. --}}
+    @auth
+        @routes(null, Vite::cspNonce())
+    @endauth
+
     @viteReactRefresh
     @vite(['resources/js/main.tsx'])
     @inertiaHead

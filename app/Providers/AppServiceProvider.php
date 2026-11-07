@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Support\Seo;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +25,13 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isProduction()) {
             URL::forceHttps();
         }
+
+        // Tanggal Indonesia di PDF SPPD dan laporan (translatedFormat).
+        Carbon::setLocale(config('app.locale'));
+
+        // Modul SPPD: admin (satu untuk semua modul) lolos semua pengecekan Policy tanpa perlu role SPPD.
+        // Bisa menerima `Akun` (Gate::forUser di Classroom), jadi tipe diperiksa di dalam.
+        Gate::before(fn ($user) => $user instanceof User && $user->isAdmin() ? true : null);
 
         // Formulir kontak publik: cegah spam/flood email.
         RateLimiter::for('contact', fn (Request $request) => [

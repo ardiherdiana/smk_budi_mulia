@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\PortalFileStorage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -48,7 +49,7 @@ class PortalFileController extends Controller
                 'per_page' => $files->perPage(),
                 'total' => $files->total(),
             ],
-            'students' => User::where('role', 'user')->where('email', '<>', 'gudang@system.internal')
+            'students' => User::akunSkl()->where('email', '<>', 'gudang@system.internal')
                 ->orderBy('email')->get(['id', 'email'])->map(fn ($u) => ['id' => $u->id, 'email' => $u->email])->all(),
             'filters' => ['q' => $search, 'scope' => $scope],
         ]);
@@ -59,7 +60,7 @@ class PortalFileController extends Controller
         $request->validate([
             'files' => ['required', 'array', 'min:1', 'max:200'],
             'files.*' => ['file', 'mimetypes:application/pdf', 'max:10240'],
-            'user_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'user')],
+            'user_id' => ['nullable', $this->aturanSiswa()],
         ], [
             'files.*.mimetypes' => 'Hanya file PDF yang diizinkan.',
             'files.*.max' => 'Ukuran tiap PDF maksimal 10 MB.',
@@ -84,7 +85,7 @@ class PortalFileController extends Controller
         $validated = $request->validate([
             'ids' => ['required', 'array', 'min:1', 'max:500'],
             'ids.*' => ['integer'],
-            'user_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'user')],
+            'user_id' => ['nullable', $this->aturanSiswa()],
         ]);
 
         PortalFile::whereIn('id', $validated['ids'])->update(['user_id' => $validated['user_id'] ?? null]);
@@ -97,5 +98,13 @@ class PortalFileController extends Controller
         $this->storage->delete($file);
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Berkas berhasil dihapus']);
+    }
+
+    /** Pemilik berkas SKL harus akun siswa/alumni (lihat User::akunSkl), bukan guru atau pegawai yang juga ber-role user. */
+    private function aturanSiswa(): Exists
+    {
+        return Rule::exists('users', 'id')
+            ->where('role', 'user')
+            ->where(fn ($q) => $q->whereNotIn('id', fn ($s) => $s->select('id')->from('profil_akun')->whereIn('role', User::PERAN_STAF)));
     }
 }

@@ -1,7 +1,23 @@
+/** Peran profil sekolah (`profil_akun.role`); `user` = akun portal/SKL lama tanpa profil. */
+export type PeranAkun = "ADMIN" | "KEPSEK" | "GURU" | "SISWA" | "STAF" | "user"
+
+/**
+ * `auth.user` dari HandleInertiaRequests: SATU bentuk untuk semua modul (Website, SKL, Classroom, Absensi, SPPD).
+ * `admin` = admin satu untuk semua modul (`users.role` admin); `role` = peran profil.
+ */
 export interface AuthUser {
   id: number
   email: string
-  role: "admin" | "user"
+  username: string | null
+  role: PeranAkun
+  admin: boolean
+  name: string | null
+  jabatan: string | null
+  is_active: boolean
+  fotoUrl: string | null
+  siswa: { id: string; nis: string | null; rombel: string | null } | null
+  /** Data guru absensi (QR, foto absen); null untuk akun tanpa baris `guru`. */
+  guru: { id: string; nama: string; fotoUrl: string | null } | null
 }
 
 export interface FlashToast {

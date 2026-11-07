@@ -56,10 +56,11 @@ function AccountLink({ user, className }: { user: AuthUser | null; className?: s
       </Button>
     )
   }
+  // Admin langsung ke panel Website; akun lain (guru, pegawai, siswa) ke Menu Utama, yang mengarahkan ke modulnya.
   return (
-    <Button variant="ghost" className={className} render={<Link href={user.role === "admin" ? "/admin" : "/portal"} />}>
-      {user.role === "admin" ? <LayoutDashboard /> : <UserRound />}
-      {user.role === "admin" ? "Panel Admin" : "Portal Siswa"}
+    <Button variant="ghost" className={className} render={<Link href={user.admin ? "/admin" : "/menu-utama"} />}>
+      {user.admin ? <LayoutDashboard /> : <UserRound />}
+      {user.admin ? "Panel Admin" : "Menu Utama"}
     </Button>
   )
 }

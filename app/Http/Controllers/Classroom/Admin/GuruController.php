@@ -6,27 +6,30 @@ use App\Http\Controllers\Classroom\Controller;
 use App\Models\Classroom\Akun;
 use App\Models\Classroom\Post;
 use App\Services\Classroom\GuruStaffSync;
+use App\Services\GuruService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 /**
- * Akun staf (guru/kepsek/admin). Admin menambah, mengubah, dan menghapus guru langsung di sini; sandi disimpan lokal.
+ * Akun guru dan kepsek (daftarnya sama dengan Data Guru absensi). Admin menambah, mengubah, dan menghapus guru langsung
+ * di sini; sandi disimpan lokal.
  * Guru (peran GURU) otomatis punya baris di `guru_staff`, jadi tampil di #guru di website beserta fotonya (GuruStaffSync).
+ * Guru dan kepsek juga selalu punya baris `guru` (Data Guru absensi) dengan nama dan status yang sama (GuruService).
  */
 class GuruController extends Controller
 {
-    public function __construct(private GuruStaffSync $website) {}
+    public function __construct(private GuruStaffSync $website, private GuruService $absensi) {}
 
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
 
-        $staf = Akun::whereIn('role', ['GURU', 'KEPSEK', 'ADMIN'])
-            ->with('staff:id,image')
+        // Isi dan urutan sama dengan Data Guru absensi (/data-guru): guru dan kepsek, urut nama. Admin bukan guru.
+        $staf = Akun::whereIn('role', GuruService::PERAN)
+            ->with('staff:id,image', 'guru:id,userId,fotoUrl')
             ->withCount(['kelasDiajar', 'rombelWali'])
             ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('username', 'like', "%{$q}%")))
-            ->orderByRaw("field(role, 'ADMIN', 'KEPSEK', 'GURU')")
             ->orderBy('name')
             ->paginate($this->perPage($request))
             ->withQueryString();
@@ -40,7 +43,8 @@ class GuruController extends Controller
                 'aktif' => $u->is_active,
                 'jumlahKelas' => $u->kelas_diajar_count,
                 'waliKelas' => $u->rombel_wali_count > 0,
-                'fotoUrl' => $u->fotoUrl(),
+                // Sama dengan Data Guru absensi: foto website, foto absen lama bila di website belum ada.
+                'fotoUrl' => $u->fotoUrl() ?? $u->guru?->fotoUrl,
                 'tampilDiWebsite' => $u->guruStaffId !== null,
             ]),
             'filter' => ['q' => $q],
@@ -66,6 +70,7 @@ class GuruController extends Controller
             'is_active' => true,
         ])->save();
         $this->website->buat($akun, $request->file('foto'));
+        $this->absensi->ikutiAkun($akun);
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Akun ditambahkan']);
     }
@@ -95,12 +100,12 @@ class GuruController extends Controller
             $guru->role = $validated['role'];
         }
         if (! empty($validated['password'])) {
+            // Sejak absensi digabung, sandi semua akun ada di users.password (satu sandi untuk semua modul).
             $guru->password = $validated['password'];
-            // Akun bekas sinkron absensi diverifikasi ke absensi; sandi baru hanya berlaku bila tautannya dilepas.
-            $guru->absensi_user_id = null;
         }
         $guru->save();
         $this->website->sinkron($guru, $namaLama, $request->file('foto'), $request->boolean('hapusFoto'));
+        $this->absensi->ikutiAkun($guru);
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Akun diperbarui']);
     }
@@ -111,6 +116,8 @@ class GuruController extends Controller
         abort_if($guru->isAdmin(), 409, 'Akun admin tidak bisa dihapus');
         abort_if($guru->kelasDiajar()->exists(), 409, 'Guru masih mengajar ruang kelas. Hapus atau pindahkan ruang kelasnya dulu');
         abort_if(Post::where('dibuatOleh', $guru->id)->exists(), 409, 'Guru ini masih tercatat sebagai pembuat postingan');
+        // Menghapus akun ikut menghapus riwayat absensi dan pengajuan SPPD-nya (cascade), jadi ditolak.
+        $guru->pengguna?->cegahHapusLintasModul('Classroom');
 
         // Wali kelas di rombel otomatis dikosongkan (FK nullOnDelete); baris `users`-nya ikut terhapus oleh model.
         // Orangnya di `guru_staff` sengaja dibiarkan: tetap tampil di #guru (hapus lewat Admin > Guru & Staf).

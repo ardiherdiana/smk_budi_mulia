@@ -6,7 +6,6 @@ import {
   Globe,
   History,
   Home,
-  KeyRound,
   LayoutDashboard,
   LogOut,
   Newspaper,
@@ -28,7 +27,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { PasswordDialog } from "@/components/password-dialog"
 
 interface NavItem {
   title: string
@@ -66,7 +64,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { url } = usePage()
   const pathname = url.split("?")[0]
   const { isMobile, setOpenMobile } = useSidebar()
-  const [passwordOpen, setPasswordOpen] = React.useState(false)
 
   function logout() {
     router.post("/logout")
@@ -118,12 +115,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Lihat Website
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setPasswordOpen(true)}>
-                  <KeyRound />
-                  Ganti Password
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -144,7 +135,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
-      <PasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} />
     </Sidebar>
   )
 }

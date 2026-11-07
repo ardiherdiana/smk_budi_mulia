@@ -100,7 +100,8 @@ class JelajahHalamanTest extends TestCase
             ['/classroom/kalender?bulan='.now()->format('Y-m'), 'classroom/agenda/kalender-page'],
             ["/classroom/post/{$this->id['post']}", 'classroom/post/detail-page'],
             ["/classroom/post/{$this->id['ujian']}", 'classroom/post/detail-page'],
-            ['/classroom/profil', 'classroom/profil-page'],
+            // Profil Classroom sudah jadi modul Profil bersama.
+            ['/profil', 'profil-page'],
         ];
     }
 
@@ -265,8 +266,9 @@ class JelajahHalamanTest extends TestCase
 
     public function test_menu_utama_dan_modul_lain_tetap_terbuka_per_peran(): void
     {
+        // Sejak absensi digabung semua peran punya lebih dari satu modul (guru: Classroom, Absensi, SPPD), jadi menu tampil.
         foreach ([$this->admin, $this->guru, $this->siswa] as $akun) {
-            $this->actingAs($akun)->get('/menu-utama')->assertStatus(in_array($akun->role, ['GURU', 'KEPSEK'], true) ? 302 : 200);
+            $this->actingAs($akun)->get('/menu-utama')->assertOk();
         }
 
         $adminUser = $this->admin->pengguna;

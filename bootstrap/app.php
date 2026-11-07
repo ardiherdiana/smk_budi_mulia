@@ -5,7 +5,9 @@ use App\Http\Middleware\PreventBackHistoryCache;
 use App\Http\Middleware\RequirePeran;
 use App\Http\Middleware\RequireRole;
 use App\Http\Middleware\RequireSklSiswa;
+use App\Http\Middleware\RequireStaf;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\Sppd\RoleMiddleware as SppdRoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -30,6 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'peran' => RequirePeran::class,
             'no-store' => PreventBackHistoryCache::class,
             'skl-siswa' => RequireSklSiswa::class,
+            'staf' => RequireStaf::class,
+            'sppd.role' => SppdRoleMiddleware::class,
         ]);
 
         $middleware->redirectGuestsTo('/login');

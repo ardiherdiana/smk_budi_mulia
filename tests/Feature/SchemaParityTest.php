@@ -80,9 +80,17 @@ class SchemaParityTest extends TestCase
             'classroom_posts', 'jawaban', 'kelas', 'komentar', 'lampiran', 'mapel', 'pengumpulan',
             'percobaan', 'profil_akun', 'rombel', 'siswa', 'soal', 'tahun_ajaran',
         ];
+        // Modul absensi + SPPD (migrasi 2026_11_03_000002_create_absensi_tables); tanpa tabel `users` sendiri.
+        $absensi = [
+            'attendance', 'briefing_attendance', 'guru', 'holidays', 'jadwal_hari', 'leave_requests', 'notifications',
+            'push_subscriptions', 'settings',
+            'model_has_permissions', 'model_has_roles', 'permissions', 'role_has_permissions', 'roles',
+            'laporan_perjalanan_fotos', 'laporan_perjalanans', 'log_audits', 'pencairans', 'pengajuan_pengikut',
+            'pengajuan_sppds', 'pengaturans', 'sppd_notifications', 'sppds',
+        ];
 
         $this->assertSame(
-            collect([...$production, ...$classroom, 'migrations'])->sort()->values()->all(),
+            collect([...$production, ...$classroom, ...$absensi, 'migrations'])->sort()->values()->all(),
             $tables,
         );
     }

@@ -102,7 +102,11 @@ class MediaAndSecurityTest extends TestCase
         $response->assertHeader('x-content-type-options', 'nosniff')
             ->assertHeader('x-frame-options', 'SAMEORIGIN')
             ->assertHeader('referrer-policy', 'strict-origin-when-cross-origin');
-        $this->assertStringContainsString('camera=()', $response->headers->get('permissions-policy'));
+        // Kamera dan lokasi hanya untuk origin sendiri (scan QR dan absen web modul absensi); mikrofon tetap mati.
+        $this->assertSame(
+            'camera=(self), microphone=(), geolocation=(self), payment=(), usb=()',
+            $response->headers->get('permissions-policy'),
+        );
     }
 
     public function test_nonce_changes_on_every_request(): void

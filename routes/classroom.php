@@ -13,7 +13,6 @@ use App\Http\Controllers\Classroom\LampiranController;
 use App\Http\Controllers\Classroom\NilaiUjianController;
 use App\Http\Controllers\Classroom\PengumpulanController;
 use App\Http\Controllers\Classroom\PostController;
-use App\Http\Controllers\Classroom\ProfileController;
 use App\Http\Controllers\Classroom\SoalController;
 use App\Http\Controllers\Classroom\UjianController;
 use Illuminate\Support\Facades\Route;
@@ -41,8 +40,8 @@ Route::prefix('classroom')->group(function () {
         Route::get('/lampiran/{lampiran}', [LampiranController::class, 'show']);
         Route::delete('/lampiran/{lampiran}', [LampiranController::class, 'destroy']);
 
-        Route::get('/profil', [ProfileController::class, 'edit']);
-        Route::post('/profil/password', [ProfileController::class, 'changePassword']);
+        // Profil Classroom lama -> modul Profil bersama (routes/web.php).
+        Route::redirect('/profil', '/profil');
     });
 
     // Guru pengajar dan admin: kelola ruang kelas, materi, tugas, ujian, dan penilaian.

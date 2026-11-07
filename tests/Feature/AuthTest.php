@@ -105,14 +105,14 @@ class AuthTest extends TestCase
     {
         $user = $this->actingAsStudent();
 
-        $this->patch('/akun/password', ['current_password' => 'salah', 'password' => 'Baru12345', 'password_confirmation' => 'Baru12345'])
+        $this->patch('/profil/password', ['current_password' => 'salah', 'password' => 'Baru12345', 'password_confirmation' => 'Baru12345'])
             ->assertSessionHasErrors('current_password');
-        $this->patch('/akun/password', ['current_password' => 'Rahasia123', 'password' => 'hurufsaja', 'password_confirmation' => 'hurufsaja'])
+        $this->patch('/profil/password', ['current_password' => 'Rahasia123', 'password' => 'hurufsaja', 'password_confirmation' => 'hurufsaja'])
             ->assertSessionHasErrors('password');
-        $this->patch('/akun/password', ['current_password' => 'Rahasia123', 'password' => 'Baru12345', 'password_confirmation' => 'beda'])
+        $this->patch('/profil/password', ['current_password' => 'Rahasia123', 'password' => 'Baru12345', 'password_confirmation' => 'beda'])
             ->assertSessionHasErrors('password');
 
-        $this->patch('/akun/password', ['current_password' => 'Rahasia123', 'password' => 'Baru12345', 'password_confirmation' => 'Baru12345'])
+        $this->patch('/profil/password', ['current_password' => 'Rahasia123', 'password' => 'Baru12345', 'password_confirmation' => 'Baru12345'])
             ->assertSessionHasNoErrors();
 
         $this->assertTrue(Hash::check('Baru12345', User::find($user->id)->password));

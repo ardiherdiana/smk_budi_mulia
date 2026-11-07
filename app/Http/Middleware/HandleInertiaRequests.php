@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Classroom\Akun;
 use App\Models\Classroom\Kelas;
 use App\Models\Classroom\TahunAjaran;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -25,8 +26,9 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Props yang dibagikan ke semua halaman. Di rute Classroom `$request->user()` adalah profil (`Akun`, lihat
-     * RequirePeran), jadi bentuk `auth.user` berbeda di sana: `role` berisi peran Classroom.
+     * Props yang dibagikan ke semua halaman. `auth.user` punya SATU bentuk untuk semua modul (Website, SKL, Classroom,
+     * Absensi, SPPD): `role` = peran profil (ADMIN|KEPSEK|GURU|SISWA|STAF) bila ada, `admin` = admin satu untuk semua
+     * modul. Di rute Classroom `$request->user()` adalah profil (`Akun`, lihat RequirePeran); keduanya ditangani di sini.
      *
      * @return array<string, mixed>
      */
@@ -52,35 +54,48 @@ class HandleInertiaRequests extends Middleware
         ];
     }
 
-    /** @return array{user: array<string, mixed>|null} */
+    /** @return array{user: array<string, mixed>|null, roles: list<string>} */
     private function auth(Request $request): array
     {
-        $user = $request->user();
-        $akun = $user instanceof Akun ? $user : null;
+        $pengguna = $this->pengguna($request);
+        if ($pengguna === null) {
+            return ['user' => null, 'roles' => []];
+        }
+
+        $akun = $request->user() instanceof Akun ? $request->user() : $pengguna->akun;
         $akun?->loadMissing('siswa.rombel:id,nama', 'staff:id,image');
+        $guru = $pengguna->guru()->first(['id', 'userId', 'nama', 'fotoUrl']);
 
         return [
-            'user' => match (true) {
-                $akun !== null => [
-                    'id' => $akun->id,
-                    'username' => $akun->username,
-                    'role' => $akun->role,
-                    'name' => $akun->namaTampil(),
-                    'fotoUrl' => $akun->fotoUrl(),
-                    'siswa' => $akun->siswa ? [
-                        'id' => $akun->siswa->id,
-                        'nis' => $akun->siswa->nis,
-                        'rombel' => $akun->siswa->rombel?->nama,
-                    ] : null,
-                ],
-                $user !== null => [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                ],
-                default => null,
-            },
+            'user' => [
+                'id' => $pengguna->id,
+                'email' => $pengguna->email,
+                'username' => $akun?->username,
+                'role' => $akun?->role ?? ($pengguna->isAdmin() ? 'ADMIN' : $pengguna->role),
+                'admin' => $pengguna->isAdmin(),
+                'name' => $akun?->namaTampil(),
+                'jabatan' => $akun?->jabatan,
+                'is_active' => $akun?->is_active ?? true,
+                'fotoUrl' => $akun?->fotoUrl(),
+                'siswa' => $akun?->siswa ? [
+                    'id' => $akun->siswa->id,
+                    'nis' => $akun->siswa->nis,
+                    'rombel' => $akun->siswa->rombel?->nama,
+                ] : null,
+                // Data guru absensi (QR); null untuk akun tanpa baris `guru`. Foto = foto website, foto absen lama bila belum ada.
+                'guru' => $guru ? ['id' => $guru->id, 'nama' => $guru->nama, 'fotoUrl' => $akun?->fotoUrl() ?? $guru->fotoUrl] : null,
+            ],
+            // Role SPPD (spatie/laravel-permission) - terpisah dari `role` profil.
+            'roles' => $pengguna->getRoleNames()->values()->all(),
         ];
+    }
+
+    /** Akun login sebagai model User, juga di rute Classroom (tempat `$request->user()` diganti `Akun`). */
+    private function pengguna(Request $request): ?User
+    {
+        $user = $request->user();
+
+        return $user instanceof Akun ? $user->pengguna : $user;
     }
 
     /** @return list<array{id: string, mapel: string, rombel: string}> */

@@ -27,6 +27,8 @@
     --color-destructive: var(--destructive);
     --color-success: var(--success);
     --color-warning: var(--warning);
+    --color-whatsapp: var(--whatsapp);
+    --color-whatsapp-foreground: var(--whatsapp-foreground);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);
@@ -77,6 +79,9 @@
        (oranye brand), jadi toast warning ga kebaca "ikutan oranye". */
     --warning: #eab308;
     --warning-foreground: oklch(0.205 0 0);
+    /* Hijau merek WhatsApp dengan teks putih, dipakai tombol "Hubungi". Sama di tema gelap, jadi tidak diulang di .dark. */
+    --whatsapp: #25d366;
+    --whatsapp-foreground: #ffffff;
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: #ea580c;

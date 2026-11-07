@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Classroom\Akun;
 use App\Models\User;
-use App\Services\Classroom\AbsensiAccountService;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,8 +15,6 @@ use Inertia\Inertia;
 
 class LoginController extends Controller
 {
-    public function __construct(private AbsensiAccountService $absensi) {}
-
     public function create()
     {
         return Inertia::render('login-page');
@@ -50,7 +46,8 @@ class LoginController extends Controller
 
         RateLimiter::clear($throttleKey);
 
-        Auth::login($user);
+        // "Ingat saya" hanya untuk staf (PWA absensi di HP guru). Siswa tidak: komputer lab dipakai bergantian.
+        Auth::login($user, remember: $user->isStaf());
         $request->session()->regenerate();
 
         Inertia::clearHistory();
@@ -70,9 +67,10 @@ class LoginController extends Controller
     }
 
     /**
-     * Satu kolom "Email / Username". Berisi "@": akun situs/portal (email + password, alur lama). Selain itu: akun
-     * Classroom. Staf (guru/kepsek/admin dari absensi) diverifikasi ke basis data absensi lalu disalin ke profil
-     * Classroom; siswa (NIS) dan admin lokal memakai sandi di tabel users.
+     * Satu kolom "Email / Username". Berisi "@": akun situs/portal (email + password, alur lama). Selain itu: username
+     * profil sekolah (guru, kepsek, admin, pegawai SPPD, siswa), sandinya di `users.password`. Sejak absensi digabung
+     * tidak ada lagi verifikasi ke basis data lain. Profil nonaktif ditolak, begitu juga guru/kepsek yang dinonaktifkan
+     * di Data Guru absensi (`guru.aktif`), sama seperti login absensi dulu.
      */
     private function autentikasi(string $identitas, string $password): ?User
     {
@@ -82,25 +80,18 @@ class LoginController extends Controller
             return $user && $this->passwordMatches($user, $password) ? $user : null;
         }
 
-        $akun = Akun::where('username', $identitas)->first();
+        $akun = Akun::with('pengguna.guru')->where('username', $identitas)->first();
+        $user = $akun?->pengguna;
 
-        if ($akun && $akun->absensi_user_id === null) {
-            return $akun->is_active && $akun->password && Hash::check($password, $akun->password) ? $akun->pengguna : null;
-        }
-
-        try {
-            $row = $this->absensi->cari($identitas);
-        } catch (QueryException $e) {
-            report($e); // basis data absensi tidak terjangkau: akun staf tidak bisa masuk, akun lain tidak terpengaruh
-
+        if (! $akun || ! $akun->is_active || ! $user || ! Hash::check($password, (string) $user->password)) {
             return null;
         }
 
-        if (! $row || ! Hash::check($password, $row->password)) {
+        if (in_array($akun->role, ['GURU', 'KEPSEK'], true) && $user->guru && ! $user->guru->aktif) {
             return null;
         }
 
-        return $this->absensi->sinkron($row)?->pengguna;
+        return $user;
     }
 
     /**

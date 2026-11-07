@@ -16,11 +16,14 @@ use Illuminate\Support\Facades\DB;
  *   php artisan db:seed --class=ProductionDataSeeder
  *
  * Foto/video berupa berkas di `public/media`; salin foldernya bila memindahkan proyek ke mesin lain.
+ * Role SPPD (pemohon, kepala_sekolah, tu, bendahara) dibuat lebih dulu oleh RoleSeeder; aman dijalankan ulang.
  */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(RoleSeeder::class);
+
         if (DB::table('users')->doesntExist()) {
             $this->call(ProductionDataSeeder::class);
         } else {

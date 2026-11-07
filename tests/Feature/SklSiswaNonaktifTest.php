@@ -28,7 +28,8 @@ class SklSiswaNonaktifTest extends TestCase
 
     public function test_kartu_skl_tidak_muncul_untuk_siswa_tetapi_tetap_untuk_admin(): void
     {
-        $this->actingAs($this->student())->get('/menu-utama')->assertOk();
+        // Tanpa kartu SKL alumni hanya punya Profil, jadi langsung diarahkan ke sana.
+        $this->actingAs($this->student())->get('/menu-utama')->assertRedirect('/profil');
 
         $this->actingAs($this->admin())->get('/menu-utama')->assertInertia(fn (Assert $page) => $page
             ->component('module-picker-page')

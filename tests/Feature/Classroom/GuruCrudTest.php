@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Classroom;
 
+use App\Models\Attendance;
 use App\Models\Classroom\Akun;
 use App\Models\Classroom\Rombel;
+use App\Models\Guru;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class GuruCrudTest extends TestCase
@@ -99,17 +102,88 @@ class GuruCrudTest extends TestCase
         $this->assertSame($lama, $guru->fresh()->password);
     }
 
-    public function test_sandi_baru_melepas_tautan_absensi_agar_sandi_lokal_berlaku(): void
+    public function test_sandi_baru_akun_bekas_absensi_langsung_berlaku_dan_jejak_absensi_tetap(): void
     {
+        // Sejak digabung, sandi akun bekas absensi ada di users.password; `absensi_user_id` hanya jejak pemetaan impor.
         $guru = $this->akun('GURU', 'guru1');
         Akun::whereKey($guru->id)->update(['absensi_user_id' => '01JABSENSI']);
         $this->actingAsAdmin();
 
-        $this->patch("/classroom/data-guru/{$guru->id}", $this->data(['username' => 'guru1', 'password' => '']))->assertSessionHasNoErrors();
-        $this->assertSame('01JABSENSI', $guru->fresh()->absensi_user_id);
-
         $this->patch("/classroom/data-guru/{$guru->id}", $this->data(['username' => 'guru1', 'password' => 'sandibaru1']))->assertSessionHasNoErrors();
-        $this->assertNull($guru->fresh()->absensi_user_id);
+
+        $this->assertTrue(Hash::check('sandibaru1', $guru->fresh()->password));
+        $this->assertSame('01JABSENSI', $guru->fresh()->absensi_user_id);
+    }
+
+    public function test_akun_yang_punya_riwayat_absensi_atau_sppd_tidak_bisa_dihapus_dari_classroom(): void
+    {
+        $guru = $this->akun('GURU', 'guru1');
+        $absen = Guru::factory()->create(['userId' => $guru->id]);
+        Attendance::create(['guruId' => $absen->id, 'tanggal' => '2026-10-01', 'statusMasuk' => 'HADIR']);
+        $this->actingAsAdmin();
+
+        $this->delete("/classroom/data-guru/{$guru->id}")->assertStatus(409);
+        $this->assertDatabaseHas('profil_akun', ['id' => $guru->id]);
+    }
+
+    public function test_guru_dan_kepsek_baru_langsung_ada_di_data_guru_absensi(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->post('/classroom/data-guru', $this->data())->assertSessionHasNoErrors();
+        $this->post('/classroom/data-guru', $this->data(['nama' => 'Teti', 'username' => 'kepsek', 'role' => 'KEPSEK']))->assertSessionHasNoErrors();
+
+        $dina = Akun::where('username', 'bu.dina')->firstOrFail();
+        $teti = Akun::where('username', 'kepsek')->firstOrFail();
+        $this->assertDatabaseHas('guru', ['userId' => $dina->id, 'nama' => 'Dina Qoyimah', 'aktif' => true]);
+        $this->assertDatabaseHas('guru', ['userId' => $teti->id, 'nama' => 'Teti', 'aktif' => true]);
+
+        // Daftar di /data-guru (absensi) berisi username yang sama dengan Data Guru Classroom.
+        $this->get('/data-guru')->assertInertia(fn (Assert $page) => $page
+            ->component('data-guru-page')
+            ->where('guruList', fn ($daftar) => collect($daftar)->pluck('user.username')->sort()->values()->all() === ['bu.dina', 'kepsek']));
+    }
+
+    public function test_ubah_nama_status_dan_peran_ikut_ke_data_guru_absensi(): void
+    {
+        $guru = $this->akun('GURU', 'guru1', 'Nama Lama');
+        $absen = Guru::factory()->create(['userId' => $guru->id, 'nama' => 'Nama Lama', 'mapel' => 'Matematika']);
+        $this->actingAsAdmin();
+
+        $this->patch("/classroom/data-guru/{$guru->id}", $this->data([
+            'nama' => 'Nama Baru', 'username' => 'guru1', 'password' => '', 'role' => 'KEPSEK', 'aktif' => 0,
+        ]))->assertSessionHasNoErrors();
+
+        // Baris yang sama diperbarui (QR dan mapel tetap), bukan dibuat baru.
+        $absen->refresh();
+        $this->assertSame('Nama Baru', $absen->nama);
+        $this->assertFalse($absen->aktif);
+        $this->assertSame('Matematika', $absen->mapel);
+        $this->assertSame(1, Guru::where('userId', $guru->id)->count());
+    }
+
+    public function test_akun_lama_tanpa_data_absensi_dibuatkan_saat_diubah_dan_admin_tidak(): void
+    {
+        $guru = $this->akun('GURU', 'guru1', 'Guru Lama');
+        $admin = $this->profilAdmin();
+
+        $this->patch("/classroom/data-guru/{$guru->id}", $this->data(['nama' => 'Guru Lama', 'username' => 'guru1', 'password' => '']))->assertSessionHasNoErrors();
+        $this->patch("/classroom/data-guru/{$admin->id}", $this->data(['username' => $admin->username, 'password' => '']))->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('guru', ['userId' => $guru->id, 'nama' => 'Guru Lama']);
+        $this->assertDatabaseMissing('guru', ['userId' => $admin->id]);
+    }
+
+    public function test_guru_tanpa_riwayat_absen_tetap_bisa_dihapus_beserta_data_guru_absensinya(): void
+    {
+        $guru = $this->akun('GURU', 'guru1');
+        $absen = Guru::factory()->create(['userId' => $guru->id]);
+        $this->actingAsAdmin();
+
+        $this->delete("/classroom/data-guru/{$guru->id}")->assertRedirect();
+
+        $this->assertDatabaseMissing('profil_akun', ['id' => $guru->id]);
+        $this->assertModelMissing($absen);
     }
 
     public function test_admin_tidak_bisa_menonaktifkan_diri_sendiri_dan_peran_admin_tidak_berubah(): void
@@ -160,27 +234,5 @@ class GuruCrudTest extends TestCase
         $this->post('/classroom/data-guru/sinkron')->assertStatus(405);
     }
 
-    public function test_siswa_bisa_ganti_sandi_sendiri_dan_sandi_lama_salah_ditolak(): void
-    {
-        $siswa = $this->siswa($this->rombel(), 'siswa01');
-        $this->actingAs($siswa);
-
-        $this->post('/classroom/profil/password', ['oldPassword' => 'salah', 'newPassword' => 'sandibaru1'])->assertSessionHasErrors('oldPassword');
-        $this->assertTrue(Hash::check('rahasia123', $siswa->fresh()->password));
-
-        $this->post('/classroom/profil/password', ['oldPassword' => 'rahasia123', 'newPassword' => 'sandibaru1'])->assertSessionHasNoErrors();
-        $this->assertTrue(Hash::check('sandibaru1', $siswa->fresh()->password));
-    }
-
-    public function test_guru_lokal_bisa_ganti_sandi_sendiri_tetapi_akun_absensi_tidak(): void
-    {
-        $guru = $this->akun('GURU', 'guru1');
-        $this->actingAs($guru);
-
-        $this->post('/classroom/profil/password', ['oldPassword' => 'rahasia123', 'newPassword' => 'sandibaru1'])->assertSessionHasNoErrors();
-        $this->assertTrue(Hash::check('sandibaru1', $guru->fresh()->password));
-
-        Akun::whereKey($guru->id)->update(['absensi_user_id' => '01JABSENSI']);
-        $this->post('/classroom/profil/password', ['oldPassword' => 'sandibaru1', 'newPassword' => 'lainlagi1'])->assertForbidden();
-    }
+    // Ganti sandi sendiri (siswa, guru) sekarang di modul Profil bersama: lihat tests/Feature/ProfilTest.php.
 }

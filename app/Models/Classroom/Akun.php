@@ -2,10 +2,14 @@
 
 namespace App\Models\Classroom;
 
+use App\Models\Guru;
+use App\Models\Principal;
 use App\Models\Staff;
 use App\Models\User;
+use App\Services\Classroom\GuruStaffSync;
 use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,11 +17,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
- * Profil Classroom untuk satu baris `users` (tabel produksi yang skemanya dikunci). `id` SAMA dengan `users.id`.
- * Username, nama, dan peran (ADMIN|KEPSEK|GURU|SISWA) ada di `profil_akun`; sandi tetap di `users.password`, dan
- * atribut `password` di model ini meneruskannya ke sana, jadi `forceFill([... 'password' => ...])->save()` tetap bekerja.
+ * Profil sekolah untuk satu baris `users` (tabel produksi yang skemanya dikunci). `id` SAMA dengan `users.id`.
+ * Username, nama, jabatan, dan peran (ADMIN|KEPSEK|GURU|SISWA, plus STAF untuk pegawai yang hanya memakai SPPD) ada
+ * di `profil_akun`; sandi tetap di `users.password`, dan atribut `password` di model ini meneruskannya ke sana, jadi
+ * `forceFill([... 'password' => ...])->save()` tetap bekerja. Peran ADMIN selalu berpasangan dengan `users.role` admin.
  */
 #[Fillable(['username', 'name', 'role', 'is_active'])]
+#[Hidden(['remember_token'])]
 class Akun extends Model
 {
     protected $table = 'profil_akun';
@@ -80,6 +86,10 @@ class Akun extends Model
             if (str_ends_with((string) $pengguna->email, '@akun.local')) {
                 $pengguna->email = Str::limit($akun->username.'@akun.local', 100, '');
             }
+            // Satu admin untuk semua modul: peran profil ADMIN <=> users.role admin.
+            if ($akun->wasRecentlyCreated || $akun->wasChanged('role')) {
+                $pengguna->role = $akun->role === 'ADMIN' ? 'admin' : 'user';
+            }
             if ($pengguna->isDirty()) {
                 $pengguna->save();
             }
@@ -104,16 +114,41 @@ class Akun extends Model
         return $this->belongsTo(User::class, 'id');
     }
 
+    /** Data guru absensi (QR, no. HP, mapel); hanya akun GURU/KEPSEK. */
+    public function guru(): HasOne
+    {
+        return $this->hasOne(Guru::class, 'userId');
+    }
+
     /** Orang ini di `guru_staff` (yang tampil di #guru di website); null bila tidak ditautkan. */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'guruStaffId');
     }
 
-    /** URL foto dari `guru_staff.image`; null bila belum ada foto atau akun tidak ditautkan. */
+    /**
+     * URL foto seperti yang tampil di website: `guru_staff.image` untuk guru yang ditautkan. Kepala sekolah tidak punya
+     * baris `guru_staff` (tampil di bagian Kepala Sekolah), jadi memakai fotonya di `principals` yang namanya sama.
+     * Null bila tidak ada foto.
+     */
     public function fotoUrl(): ?string
     {
-        return $this->staff?->image ? app(MediaService::class)->url($this->staff->image) : null;
+        $path = $this->staff?->image ?: ($this->role === 'KEPSEK' ? $this->kepalaSekolahDiWebsite()?->foto : null);
+
+        return $path ? app(MediaService::class)->url($path) : null;
+    }
+
+    /** Baris kepala sekolah di website (`principals`) yang namanya sama dengan akun ini (gelar diabaikan); yang terbaru. */
+    public function kepalaSekolahDiWebsite(): ?Principal
+    {
+        if (! $this->name) {
+            return null;
+        }
+
+        $kunci = GuruStaffSync::kunciNama($this->name);
+
+        return Principal::orderByDesc('id')->get(['id', 'nama', 'foto'])
+            ->first(fn (Principal $p) => GuruStaffSync::kunciNama($p->nama) === $kunci);
     }
 
     /**

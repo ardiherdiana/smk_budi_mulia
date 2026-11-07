@@ -1,11 +1,9 @@
-import * as React from "react"
 import { Head, Link, router } from "@inertiajs/react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Download, FileText, Inbox, KeyRound, LogOut } from "lucide-react"
+import { ArrowLeft, Download, FileText, Inbox, LogOut } from "lucide-react"
 
 import { useAuth } from "@/context/auth-context"
 import { formatTanggalWaktu } from "@/lib/format"
-import { PasswordDialog } from "@/components/password-dialog"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,7 +19,6 @@ interface PortalFile {
 
 export function PortalPage({ files }: { files: PortalFile[] }) {
   const { user } = useAuth()
-  const [passwordOpen, setPasswordOpen] = React.useState(false)
 
   return (
     <div className="min-h-svh bg-sidebar">
@@ -36,9 +33,6 @@ export function PortalPage({ files }: { files: PortalFile[] }) {
           </div>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={() => setPasswordOpen(true)}>
-              <KeyRound /> <span className="hidden sm:inline">Ganti password</span>
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => router.post("/logout")}>
               <LogOut /> <span className="hidden sm:inline">Keluar</span>
             </Button>
@@ -105,8 +99,6 @@ export function PortalPage({ files }: { files: PortalFile[] }) {
           </ul>
         )}
       </main>
-
-      <PasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} />
     </div>
   )
 }

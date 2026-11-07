@@ -56,7 +56,7 @@ export function KelasHeader({ kelas }: { kelas: KelasHeaderData }) {
             {kelas.diarsipkan && <Badge variant="outline">Diarsipkan</Badge>}
           </div>
           <p className="truncate text-xs text-muted-foreground">
-            {kelas.rombel} Â· {kelas.guru} Â· {kelas.tahunAjaran} Â· {kelas.jumlahSiswa} siswa
+            {kelas.rombel} · {kelas.guru} · {kelas.tahunAjaran} · {kelas.jumlahSiswa} siswa
           </p>
         </div>
       </div>
