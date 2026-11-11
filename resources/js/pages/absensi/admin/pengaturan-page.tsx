@@ -236,11 +236,12 @@ export function PengaturanPage({ settings, jadwal: initialJadwal }: Props) {
             <span className="font-medium text-foreground">Terapkan ke Semua Hari</span> di bawah
             kolom hari itu biar gak perlu isi satu-satu.
           </p>
-          <div className="overflow-x-auto rounded-lg border">
-            <div className="flex divide-x">
+          {/* Ponsel: hari ditumpuk ke bawah (jam 2 kolom); layar lebar: satu kolom per hari. */}
+          <div data-kartu-dalam className="overflow-x-auto rounded-lg border">
+            <div className="flex flex-col divide-y md:flex-row md:divide-x md:divide-y-0">
               {jadwal.map((row) => (
-                <div key={row.hari} className="flex min-w-44 flex-1 flex-col">
-                  <div className="flex flex-col items-center gap-1.5 border-b bg-muted/30 px-2 py-3">
+                <div key={row.hari} className="flex flex-1 flex-col md:min-w-44">
+                  <div className="flex items-center justify-between gap-1.5 border-b bg-muted/30 px-3 py-2 md:flex-col md:justify-start md:px-2 md:py-3">
                     <span className="text-sm font-semibold">{HARI_LABEL[row.hari]}</span>
                     <div className="flex items-center gap-1.5">
                       <Checkbox
@@ -256,7 +257,7 @@ export function PengaturanPage({ settings, jadwal: initialJadwal }: Props) {
                       </FieldLabel>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col gap-3 p-3">
+                  <div className="grid flex-1 grid-cols-2 gap-3 p-3 md:flex md:flex-col">
                     <Field>
                       <FieldLabel htmlFor={`mulai-${row.hari}`} className="text-xs text-muted-foreground">
                         Jam Mulai Absen
@@ -345,7 +346,7 @@ export function PengaturanPage({ settings, jadwal: initialJadwal }: Props) {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="mt-auto w-full"
+                        className="col-span-2 mt-auto w-full"
                         onClick={() => handleApplyToAllDays(row.hari)}
                       >
                         Terapkan ke Semua Hari

@@ -10,6 +10,7 @@ import { ImageField } from "@/components/admin/file-fields"
 import { DataPagination } from "@/components/data-pagination"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -161,7 +162,7 @@ export function GuruPage({ guru, filter }: Props) {
       <Input placeholder="Cari nama atau username..." value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -184,15 +185,20 @@ export function GuruPage({ guru, filter }: Props) {
             ) : (
               guru.data.map((g, i) => (
                 <TableRow key={g.id}>
-                  <TableCell className="text-muted-foreground">{(guru.current_page - 1) * guru.per_page + i + 1}</TableCell>
-                  <TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{(guru.current_page - 1) * guru.per_page + i + 1}</TableCell>
+                  <TableCell kartu="sembunyi">
                     <Avatar>
                       {g.fotoUrl && <AvatarImage src={g.fotoUrl} alt="" className="object-top" />}
                       <AvatarFallback>{initials(g.nama)}</AvatarFallback>
                     </Avatar>
                   </TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell kartu="judul" className="font-medium">
                     <div className="flex items-center gap-2">
+                      {/* Di ponsel kolom foto disembunyikan; fotonya tampil di samping nama. */}
+                      <Avatar className="md:hidden">
+                        {g.fotoUrl && <AvatarImage src={g.fotoUrl} alt="" className="object-top" />}
+                        <AvatarFallback>{initials(g.nama)}</AvatarFallback>
+                      </Avatar>
                       {g.nama}
                       {g.waliKelas && <Badge variant="secondary">Wali kelas</Badge>}
                     </div>
@@ -204,15 +210,15 @@ export function GuruPage({ guru, filter }: Props) {
                   </TableCell>
                   <TableCell className="text-right">{g.role === "ADMIN" ? "-" : g.jumlahKelas}</TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => ubah(g)} aria-label={`Ubah ${g.nama}`}>
+                        <TombolAksi jenis="edit" onClick={() => ubah(g)} aria-label={`Edit ${g.nama}`}>
                           <Pencil />
-                        </Button>
+                        </TombolAksi>
                         {g.role !== "ADMIN" && (
-                          <Button variant="ghost" size="icon-sm" onClick={() => hapus(g)} aria-label={`Hapus ${g.nama}`}>
+                          <TombolAksi jenis="hapus" onClick={() => hapus(g)} aria-label={`Hapus ${g.nama}`}>
                             <Trash2 />
-                          </Button>
+                          </TombolAksi>
                         )}
                       </div>
                     </TableCell>

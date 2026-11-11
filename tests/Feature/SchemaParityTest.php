@@ -88,9 +88,11 @@ class SchemaParityTest extends TestCase
             'laporan_perjalanan_fotos', 'laporan_perjalanans', 'log_audits', 'pencairans', 'pengajuan_pengikut',
             'pengajuan_sppds', 'pengaturans', 'sppd_notifications', 'sppds',
         ];
+        // Modul Supervisi Guru (migrasi 2026_11_07_000001_create_supervisi_tables).
+        $supervisi = ['supervisi', 'supervisi_butir', 'supervisi_skor'];
 
         $this->assertSame(
-            collect([...$production, ...$classroom, ...$absensi, 'migrations'])->sort()->values()->all(),
+            collect([...$production, ...$classroom, ...$absensi, ...$supervisi, 'migrations'])->sort()->values()->all(),
             $tables,
         );
     }

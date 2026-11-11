@@ -7,6 +7,7 @@ import { useAuth } from "@/context/classroom-auth"
 import { useConfirm } from "@/hooks/use-confirm"
 import { DataPagination } from "@/components/data-pagination"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -178,7 +179,7 @@ export function SiswaPage({ siswa, rombel, filter }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -200,8 +201,8 @@ export function SiswaPage({ siswa, rombel, filter }: Props) {
             ) : (
               siswa.data.map((s, i) => (
                 <TableRow key={s.id}>
-                  <TableCell className="text-muted-foreground">{(siswa.current_page - 1) * siswa.per_page + i + 1}</TableCell>
-                  <TableCell className="font-medium">{s.nama}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{(siswa.current_page - 1) * siswa.per_page + i + 1}</TableCell>
+                  <TableCell kartu="judul" className="font-medium">{s.nama}</TableCell>
                   <TableCell className="font-mono text-xs">{s.nis ?? "-"}</TableCell>
                   <TableCell className="font-mono text-xs">{s.username}</TableCell>
                   <TableCell>{s.rombel}</TableCell>
@@ -209,14 +210,14 @@ export function SiswaPage({ siswa, rombel, filter }: Props) {
                     <Badge variant={s.aktif ? "success" : "destructive"}>{s.aktif ? "Aktif" : "Nonaktif"}</Badge>
                   </TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => ubah(s)} aria-label={`Ubah ${s.nama}`}>
+                        <TombolAksi jenis="edit" onClick={() => ubah(s)} aria-label={`Edit ${s.nama}`}>
                           <Pencil />
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" onClick={() => hapus(s)} aria-label={`Hapus ${s.nama}`}>
+                        </TombolAksi>
+                        <TombolAksi jenis="hapus" onClick={() => hapus(s)} aria-label={`Hapus ${s.nama}`}>
                           <Trash2 />
-                        </Button>
+                        </TombolAksi>
                       </div>
                     </TableCell>
                   )}

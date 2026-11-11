@@ -17,7 +17,7 @@ export function SklLayout({ children }: { children: ReactNode }) {
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4!" />
-          <h1 className="text-sm font-medium text-muted-foreground">SKL SMK Budi Mulia</h1>
+          <h1 className="min-w-0 truncate text-sm font-medium text-muted-foreground">SKL SMK Budi Mulia</h1>
           <div className="ml-auto flex items-center">
             <ThemeToggle />
           </div>

@@ -148,7 +148,7 @@ export function GuruIzinPage({ list }: { list: LeaveRequest[] }) {
       </Card>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -171,9 +171,9 @@ export function GuruIzinPage({ list }: { list: LeaveRequest[] }) {
                 const badge = statusBadge(item.status)
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                    <TableCell kartu="sembunyi" className="text-muted-foreground">{index + 1}</TableCell>
                     <TableCell>{item.jenis === "IZIN" ? "Izin" : "Sakit"}</TableCell>
-                    <TableCell>
+                    <TableCell kartu="judul">
                       {item.tanggalMulai.slice(0, 10)} s/d {item.tanggalSelesai.slice(0, 10)}
                     </TableCell>
                     <TableCell className="max-w-xs truncate">{item.alasan}</TableCell>

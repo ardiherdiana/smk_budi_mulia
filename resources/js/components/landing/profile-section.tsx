@@ -20,16 +20,11 @@ function AboutTabs({ abouts }: { abouts: AboutItem[] }) {
     <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[18rem_1fr]">
       <Reveal>
         <Tabs value={active.id} onValueChange={(value) => setActiveId(String(value))} orientation="vertical" className="gap-0">
-          <TabsList className="h-auto w-full flex-col gap-1 bg-muted p-1.5">
+          <TabsList className="w-full">
             {abouts.map((item) => {
               const Icon = iconFor(item.icon_type)
               return (
-                // text-foreground/75: teks tab nonaktif bawaan (muted-foreground di atas muted) hanya 4,3:1.
-                <TabsTrigger
-                  key={item.id}
-                  value={item.id}
-                  className="h-11 w-full justify-start gap-2.5 px-3 text-sm text-foreground/75 data-active:text-foreground"
-                >
+                <TabsTrigger key={item.id} value={item.id} className="w-full gap-2.5 px-4">
                   <Icon /> <span className="truncate">{item.title}</span>
                 </TabsTrigger>
               )

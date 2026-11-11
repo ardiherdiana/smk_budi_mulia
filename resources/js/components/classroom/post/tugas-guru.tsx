@@ -6,6 +6,7 @@ import type { Lampiran, Post, RingkasPengumpulan } from "@/lib/classroom/types"
 import { formatAngka, formatWaktu } from "@/lib/classroom/format"
 import { LampiranList } from "@/components/classroom/lampiran-list"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -86,7 +87,7 @@ export function TugasGuru({ post, baris }: { post: Post; baris: BarisPengumpulan
         </span>
       </h2>
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -107,8 +108,8 @@ export function TugasGuru({ post, baris }: { post: Post; baris: BarisPengumpulan
             ) : (
               baris.map((b, i) => (
                 <TableRow key={b.siswaId}>
-                  <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium">{b.nama}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell kartu="judul" className="font-medium">{b.nama}</TableCell>
                   <TableCell>
                     <StatusBadge p={b.pengumpulan} />
                   </TableCell>
@@ -122,16 +123,15 @@ export function TugasGuru({ post, baris }: { post: Post; baris: BarisPengumpulan
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
+                  <TableCell kartu="aksi" className="text-right">
+                    <TombolAksi
+                      label="Periksa"
                       onClick={() => periksa(b)}
                       disabled={!b.pengumpulan}
                       aria-label={`Periksa pengumpulan ${b.nama}`}
                     >
                       <Eye />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

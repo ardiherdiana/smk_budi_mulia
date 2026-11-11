@@ -6,6 +6,7 @@ import { initials } from "@/lib/utils"
 import type { PrincipalItem } from "@/lib/types"
 import { ImageField } from "@/components/admin/file-fields"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -120,7 +121,7 @@ export function AdminKepsekPage({ principals }: { principals: PrincipalItem[] })
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead>Nama</TableHead>
@@ -138,7 +139,7 @@ export function AdminKepsekPage({ principals }: { principals: PrincipalItem[] })
             ) : (
               principals.map((principal) => (
                 <TableRow key={principal.id}>
-                  <TableCell>
+                  <TableCell kartu="judul">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         {principal.foto_url && <AvatarImage src={principal.foto_url} alt={principal.nama} loading="lazy" className="object-cover object-top" />}
@@ -150,21 +151,19 @@ export function AdminKepsekPage({ principals }: { principals: PrincipalItem[] })
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{principal.tahun_jabatan}</TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Edit"
+                  <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                    <TombolAksi
+                      jenis="edit"
                       onClick={() => {
                         setEditing(principal)
                         setOpen(true)
                       }}
                     >
                       <Pencil />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(principal)}>
+                    </TombolAksi>
+                    <TombolAksi jenis="hapus" onClick={() => handleDelete(principal)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

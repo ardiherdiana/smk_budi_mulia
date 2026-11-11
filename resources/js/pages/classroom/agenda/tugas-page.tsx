@@ -163,9 +163,9 @@ export function DaftarTugasPage({ items }: Props) {
       </div>
 
       <Tabs value={aktif} onValueChange={(v) => setAktif(String(v))}>
-        <TabsList variant="line" className="h-10 border-b">
+        <TabsList className="w-full overflow-x-auto max-md:justify-between">
           {tabs.map((t) => (
-            <TabsTrigger key={t.kunci} value={t.kunci} className="px-4">
+            <TabsTrigger key={t.kunci} value={t.kunci}>
               {t.label}
             </TabsTrigger>
           ))}

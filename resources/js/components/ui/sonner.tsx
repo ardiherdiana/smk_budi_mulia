@@ -1,13 +1,17 @@
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  // Di ponsel toast muncul di atas supaya tidak menutupi bar aksi yang menempel di bawah layar.
+  const isMobile = useIsMobile()
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      position={isMobile ? "top-center" : "bottom-right"}
       richColors
       className="toaster group"
       icons={{

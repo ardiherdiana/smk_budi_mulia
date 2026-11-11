@@ -5,15 +5,18 @@ namespace App\Services;
 use App\Models\Notification;
 use App\Models\Sppd\SppdNotification;
 use App\Models\User;
+use App\Notifications\Supervisi\SupervisiNotifikasi;
 use Illuminate\Support\Collection;
 
 /**
- * Notifikasi terpusat: satu daftar untuk lonceng di topbar Menu Utama, gabungan dua sumber.
+ * Notifikasi terpusat: satu daftar untuk lonceng di topbar Menu Utama, gabungan tiga sumber.
  *
  * - `absensi`: absen masuk, absen pulang, dan pengajuan izin (tabel `notifications`). Status dibacanya bersama untuk
  *   semua penerima, dan hanya admin serta kepsek yang menerimanya (sama seperti halaman notifikasi absensi dulu).
  *   Dihapus otomatis 7 hari setelah dibuat (Notification::prunable).
  * - `sppd`: perubahan status pengajuan SPPD, per akun (tabel `sppd_notifications`).
+ * - `supervisi`: jadwal/hasil supervisi guru, per akun. Satu tabel dengan SPPD (notifikasi database Laravel lewat
+ *   `User::notifications()`), dibedakan dari `type` = SupervisiNotifikasi.
  */
 class NotifikasiTerpusat
 {
@@ -54,7 +57,15 @@ class NotifikasiTerpusat
 
         if ($this->bolehSppd($user)) {
             $items = $items->concat(
-                $user->notifications()->limit(self::BATAS)->get()->map(fn (SppdNotification $n) => [
+                $user->notifications()->limit(self::BATAS)->get()->map(fn (SppdNotification $n) => $this->supervisi($n) ? [
+                    'id' => $n->id,
+                    'sumber' => 'supervisi',
+                    'tipe' => 'SUPERVISI',
+                    'judul' => 'Supervisi Guru',
+                    'pesan' => $n->data['pesan'] ?? 'Ada pembaruan pada supervisi.',
+                    'waktu' => $n->created_at->toIso8601String(),
+                    'dibaca' => $n->read_at !== null,
+                ] : [
                     'id' => $n->id,
                     'sumber' => 'sppd',
                     'tipe' => 'SPPD',
@@ -83,14 +94,32 @@ class NotifikasiTerpusat
             return $notifikasi ? $this->tujuanAbsensi($notifikasi) : null;
         }
 
-        if ($sumber === 'sppd' && $this->bolehSppd($user)) {
-            $notifikasi = $user->notifications()->where('id', $id)->first();
+        if (in_array($sumber, ['sppd', 'supervisi'], true) && $this->bolehSppd($user)) {
+            $notifikasi = $user->notifications()->where('id', $id)
+                ->where('type', $sumber === 'supervisi' ? '=' : '!=', SupervisiNotifikasi::class)
+                ->first();
             $notifikasi?->markAsRead();
 
-            return $notifikasi ? $this->tujuanSppd($notifikasi) : null;
+            if (! $notifikasi) {
+                return null;
+            }
+
+            return $sumber === 'supervisi' ? $this->tujuanSupervisi($notifikasi) : $this->tujuanSppd($notifikasi);
         }
 
         return null;
+    }
+
+    private function supervisi(SppdNotification $notifikasi): bool
+    {
+        return $notifikasi->type === SupervisiNotifikasi::class;
+    }
+
+    private function tujuanSupervisi(SppdNotification $notifikasi): string
+    {
+        $supervisi = $notifikasi->data['supervisi_id'] ?? null;
+
+        return $supervisi ? "/supervisi/{$supervisi}" : '/supervisi/dashboard';
     }
 
     public function bacaSemua(User $user): void

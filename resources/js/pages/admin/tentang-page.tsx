@@ -6,6 +6,7 @@ import type { AboutItem } from "@/lib/types"
 import { GalleryField } from "@/components/admin/file-fields"
 import { iconFor } from "@/components/landing/icon-map"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -181,7 +182,7 @@ export function AdminTentangPage({ items, icons }: { items: AboutItem[]; icons: 
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-16">Urutan</TableHead>
@@ -205,7 +206,7 @@ export function AdminTentangPage({ items, icons }: { items: AboutItem[]; icons: 
                   <TableRow key={item.id}>
                     <TableCell className="text-muted-foreground">{item.display_order}</TableCell>
                     {/* Teks panjang dipotong dengan "..." supaya tabel tidak melebar dan memunculkan scroll horizontal. */}
-                    <TableCell className="max-w-xs md:max-w-md lg:max-w-xl">
+                    <TableCell kartu="judul" className="max-w-xs md:max-w-md lg:max-w-xl">
                       <div className="flex min-w-0 items-center gap-2 font-medium">
                         <Icon className="size-4 shrink-0 text-muted-foreground" />
                         <span className="truncate" title={item.title}>
@@ -228,21 +229,19 @@ export function AdminTentangPage({ items, icons }: { items: AboutItem[]; icons: 
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Edit"
+                    <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                      <TombolAksi
+                        jenis="edit"
                         onClick={() => {
                           setEditing(item)
                           setOpen(true)
                         }}
                       >
                         <Pencil />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(item)}>
+                      </TombolAksi>
+                      <TombolAksi jenis="hapus" onClick={() => handleDelete(item)}>
                         <Trash2 />
-                      </Button>
+                      </TombolAksi>
                     </TableCell>
                   </TableRow>
                 )

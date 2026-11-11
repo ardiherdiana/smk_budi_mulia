@@ -168,7 +168,7 @@ export function UjianGuru({ postId, tokenAkses, soal, totalPoin, sudahDikerjakan
           <EksporNilai postId={postId} kelas={kelasUjian} />
         </h2>
         <div className="overflow-x-auto rounded-lg border">
-          <Table>
+          <Table kartu>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">No</TableHead>
@@ -188,8 +188,8 @@ export function UjianGuru({ postId, tokenAkses, soal, totalPoin, sudahDikerjakan
               ) : (
                 hasil.map((h, i) => (
                   <TableRow key={h.siswaId}>
-                    <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                    <TableCell className="font-medium">{h.nama}</TableCell>
+                    <TableCell kartu="sembunyi" className="text-muted-foreground">{i + 1}</TableCell>
+                    <TableCell kartu="judul" className="font-medium">{h.nama}</TableCell>
                     <TableCell>
                       <StatusHasil status={h.status} />
                     </TableCell>
@@ -202,9 +202,14 @@ export function UjianGuru({ postId, tokenAkses, soal, totalPoin, sudahDikerjakan
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       {h.percobaanId && h.status !== "BERJALAN" && (
-                        <Button variant="ghost" size="sm" render={<Link href={`/classroom/percobaan/${h.percobaanId}`} />}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          data-tombol-aksi="lain"
+                          render={<Link href={`/classroom/percobaan/${h.percobaanId}`} />}
+                        >
                           <ClipboardCheck /> {h.status === "SELESAI" ? "Koreksi" : "Lihat"}
                         </Button>
                       )}

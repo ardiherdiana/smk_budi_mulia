@@ -5,6 +5,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useAuth } from "@/context/classroom-auth"
 import { useConfirm } from "@/hooks/use-confirm"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -106,7 +107,7 @@ export function TahunAjaranPage({ tahunAjaran }: { tahunAjaran: TahunAjaran[] })
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -127,22 +128,22 @@ export function TahunAjaranPage({ tahunAjaran }: { tahunAjaran: TahunAjaran[] })
             ) : (
               tahunAjaran.map((t, i) => (
                 <TableRow key={t.id}>
-                  <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium">{t.nama}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell kartu="judul" className="font-medium">{t.nama}</TableCell>
                   <TableCell>{t.semester === "GANJIL" ? "Ganjil" : "Genap"}</TableCell>
                   <TableCell>
                     <Badge variant={t.aktif ? "success" : "outline"}>{t.aktif ? "Aktif" : "Tidak aktif"}</Badge>
                   </TableCell>
                   <TableCell className="text-right">{t.jumlahKelas}</TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => ubah(t)} aria-label={`Ubah ${t.nama}`}>
+                        <TombolAksi jenis="edit" onClick={() => ubah(t)} aria-label={`Edit ${t.nama}`}>
                           <Pencil />
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" onClick={() => hapus(t)} aria-label={`Hapus ${t.nama}`}>
+                        </TombolAksi>
+                        <TombolAksi jenis="hapus" onClick={() => hapus(t)} aria-label={`Hapus ${t.nama}`}>
                           <Trash2 />
-                        </Button>
+                        </TombolAksi>
                       </div>
                     </TableCell>
                   )}

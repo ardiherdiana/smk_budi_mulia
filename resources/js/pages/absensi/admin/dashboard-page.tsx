@@ -88,6 +88,7 @@ export function AdminDashboardPage({ guruList, today, pendingIzin, trend }: Prop
               return (
                 <div
                   key={status}
+                  data-kartu-dalam
                   className={cn(
                     "rounded-lg border p-4",
                     tint,

@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react"
 import type { Holiday } from "@/lib/absensi/types"
 import { useConfirm } from "@/hooks/use-confirm"
 import { formatTanggal, todayIso } from "@/lib/absensi/attendance-format"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/absensi/date-picker"
 import { Field, FieldLabel } from "@/components/ui/field"
@@ -86,7 +87,7 @@ export function LiburPage({ list }: { list: Holiday[] }) {
       )}
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -105,17 +106,13 @@ export function LiburPage({ list }: { list: Holiday[] }) {
             ) : (
               list.map((holiday, index) => (
                 <TableRow key={holiday.id}>
-                  <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                  <TableCell>{formatTanggal(holiday.tanggal)}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell kartu="judul">{formatTanggal(holiday.tanggal)}</TableCell>
                   <TableCell>{holiday.keterangan}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleDelete(holiday)}
-                    >
+                  <TableCell kartu="aksi" className="text-right">
+                    <TombolAksi jenis="hapus" onClick={() => handleDelete(holiday)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

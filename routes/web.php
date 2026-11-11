@@ -44,13 +44,13 @@ Route::middleware(['guest', 'no-store'])->group(function () {
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth');
 
 Route::middleware(['auth', 'no-store'])->group(function () {
-    // ---- Menu utama (pemilih modul: Website, SKL, Classroom, Absensi, SPPD, Profil) ----
+    // ---- Menu utama (pemilih modul: Website, SKL, Classroom, Absensi, SPPD, Supervisi, Data Guru, Profil) ----
     Route::get('/menu-utama', [MenuController::class, 'index'])->name('menu');
 
     // ---- Notifikasi terpusat (lonceng di topbar Menu Utama; daftarnya dikirim MenuController) ----
     Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');
     Route::post('/notifikasi/{sumber}/{id}/baca', [NotifikasiController::class, 'baca'])
-        ->whereIn('sumber', ['absensi', 'sppd'])->name('notifikasi.baca');
+        ->whereIn('sumber', ['absensi', 'sppd', 'supervisi'])->name('notifikasi.baca');
 
     // ---- Profil: satu untuk semua akun dan semua modul ---------------------------
     Route::get('/profil', [ProfilController::class, 'edit'])->name('profil');
@@ -62,6 +62,9 @@ Route::middleware(['auth', 'no-store'])->group(function () {
 
     // ---- Absensi guru + SPPD (URL lama absensi, middleware `staf:`) -------------
     require __DIR__.'/absensi.php';
+
+    // ---- Supervisi guru (supervisi akademik, middleware `staf:ADMIN,KEPSEK,GURU`) ----
+    require __DIR__.'/supervisi.php';
 
     // ---- Portal siswa -------------------------------------------------------
     // Dimatikan sementara lewat config('school.skl_siswa_aktif'): siswa dialihkan ke menu utama.

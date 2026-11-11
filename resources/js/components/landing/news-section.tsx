@@ -155,17 +155,13 @@ export function NewsSection({ posts, categories, filters, activePost }: Props) {
           <div className="flex flex-col items-stretch justify-between gap-4 md:flex-row md:items-center">
             <Tabs value={filters.type} onValueChange={(value) => changeFilters({ type: String(value) })}>
               {/* Tiga kolom sama lebar (simetris), sama seperti tab di seksi Guru dan staf. */}
-              <TabsList className="grid w-full grid-cols-3 group-data-horizontal/tabs:h-auto sm:group-data-horizontal/tabs:h-8 md:w-72">
+              <TabsList className="grid w-full grid-cols-3 md:w-72">
                 {[
                   ["all", "Semua"],
                   ["berita", "Berita"],
                   ["video", "Video"],
                 ].map(([value, label]) => (
-                  <TabsTrigger
-                    key={value}
-                    value={value}
-                    className="h-auto min-h-11 px-2 py-1.5 text-foreground/75 data-active:text-foreground sm:min-h-0"
-                  >
+                  <TabsTrigger key={value} value={value} className="px-2">
                     {label}
                   </TabsTrigger>
                 ))}

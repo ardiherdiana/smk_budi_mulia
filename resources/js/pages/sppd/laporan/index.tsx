@@ -92,7 +92,7 @@ export default function Index() {
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border">
-                    <Table>
+                    <Table kartu>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-10">No</TableHead>
@@ -112,10 +112,10 @@ export default function Index() {
                             ) : (
                                 items.data.map((item, index) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="text-muted-foreground">
+                                        <TableCell kartu="sembunyi" className="text-muted-foreground">
                                             {(items.current_page - 1) * items.per_page + index + 1}
                                         </TableCell>
-                                        <TableCell className="font-medium">{item.pemohon.name}</TableCell>
+                                        <TableCell kartu="judul" className="font-medium">{item.pemohon.name}</TableCell>
                                         <TableCell>{item.tujuan}</TableCell>
                                         <TableCell>{formatDate(item.tanggal_berangkat)}</TableCell>
                                         <TableCell className="text-right">{rupiah(totalPencairan(item))}</TableCell>

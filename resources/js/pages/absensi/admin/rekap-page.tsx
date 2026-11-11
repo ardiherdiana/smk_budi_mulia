@@ -13,6 +13,7 @@ import {
   toTimeInputValue,
 } from "@/lib/absensi/attendance-format"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { DataPagination } from "@/components/data-pagination"
 import { DatePicker } from "@/components/absensi/date-picker"
@@ -165,7 +166,7 @@ export function RekapPage({ rows, from, to, guruId, guruList }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -187,11 +188,11 @@ export function RekapPage({ rows, from, to, guruId, guruList }: Props) {
             ) : (
               paginatedRows.map((row, index) => (
                 <TableRow key={`${row.guruId}-${row.tanggal}`}>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
                   <TableCell>{row.tanggal}</TableCell>
-                  <TableCell>{row.nama}</TableCell>
+                  <TableCell kartu="judul">{row.nama}</TableCell>
                   <TableCell>{formatJam(row.jamMasuk)}</TableCell>
                   <TableCell>{formatJam(row.jamPulang)}</TableCell>
                   <TableCell>
@@ -201,11 +202,11 @@ export function RekapPage({ rows, from, to, guruId, guruList }: Props) {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell kartu="aksi" className="text-right">
                     {row.status && (
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(row)}>
+                      <TombolAksi jenis="edit" onClick={() => openEdit(row)}>
                         <Pencil />
-                      </Button>
+                      </TombolAksi>
                     )}
                   </TableCell>
                 </TableRow>

@@ -6,6 +6,7 @@ import type { Paginated } from "@/lib/types"
 import { formatTanggalWaktu } from "@/lib/format"
 import { DataPagination } from "@/components/data-pagination"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -225,8 +226,16 @@ export function AdminBerkasPage({ files, students, filters }: Props) {
         )}
       </div>
 
+      {/* Di ponsel kepala tabel tidak tampil, jadi "pilih semua" dipindah ke atas daftar. */}
+      {files.data.length > 0 && (
+        <label className="flex min-h-11 items-center gap-3 text-sm md:hidden">
+          <Checkbox checked={allSelected} onCheckedChange={(checked) => setSelected(checked === true ? files.data.map((f) => f.id) : [])} />
+          Pilih semua di halaman ini
+        </label>
+      )}
+
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">
@@ -259,7 +268,7 @@ export function AdminBerkasPage({ files, students, filters }: Props) {
                       onCheckedChange={(checked) => setSelected((prev) => (checked === true ? [...prev, file.id] : prev.filter((id) => id !== file.id)))}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell kartu="judul">
                     <div className="flex max-w-xs items-center gap-2 md:max-w-md">
                       <span className="truncate font-medium" title={file.nama_file}>
                         {file.nama_file}
@@ -275,16 +284,16 @@ export function AdminBerkasPage({ files, students, filters }: Props) {
                     {file.owner_email ?? <Badge variant="warning">Gudang</Badge>}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">{formatTanggalWaktu(file.uploaded_at)}</TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button variant="ghost" size="icon-sm" aria-label="Unduh" disabled={!file.available} render={<a href={file.download_url} />}>
+                  <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                    <TombolAksi label="Unduh" disabled={!file.available} render={<a href={file.download_url} />}>
                       <Download />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Bagikan" onClick={() => setAssignIds([file.id])}>
+                    </TombolAksi>
+                    <TombolAksi label="Bagikan" onClick={() => setAssignIds([file.id])}>
                       <Send />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(file)}>
+                    </TombolAksi>
+                    <TombolAksi jenis="hapus" onClick={() => handleDelete(file)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

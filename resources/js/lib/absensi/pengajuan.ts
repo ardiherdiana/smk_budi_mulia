@@ -20,7 +20,7 @@ export function statusBadge(status: string): { label: string; variant: StatusBad
         case 'selesai':
             return { label, variant: 'success' };
         case 'sedang_ditugaskan':
-            return { label, variant: 'outline' };
+            return { label, variant: 'secondary' };
         default:
             return { label, variant: 'secondary' };
     }

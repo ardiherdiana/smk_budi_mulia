@@ -636,7 +636,7 @@ export default function Show() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="overflow-x-auto rounded-lg border">
-                                        <Table>
+                                        <Table kartu>
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead className="w-10">No</TableHead>
@@ -649,8 +649,8 @@ export default function Show() {
                                             <TableBody>
                                                 {pengajuan.pencairans.map((p, index) => (
                                                     <TableRow key={p.id}>
-                                                        <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                                                        <TableCell className="capitalize">{p.jenis.replace('_', ' ')}</TableCell>
+                                                        <TableCell kartu="sembunyi" className="text-muted-foreground">{index + 1}</TableCell>
+                                                        <TableCell kartu="judul" className="capitalize">{p.jenis.replace('_', ' ')}</TableCell>
                                                         <TableCell>{rupiah(p.jumlah)}</TableCell>
                                                         <TableCell>{formatDate(p.tanggal)}</TableCell>
                                                         <TableCell>{p.pencair.name}</TableCell>

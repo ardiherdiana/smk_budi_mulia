@@ -59,13 +59,13 @@ export function DataPagination({
         <span>{total === 0 ? "Tidak ada data" : `Menampilkan ${from}-${to} dari ${total} data`}</span>
       </div>
 
-      <Pagination className="mx-0 w-auto justify-end">
-        <PaginationContent>
+      <Pagination className="mx-0 w-full justify-end sm:w-auto">
+        <PaginationContent className="w-full justify-between sm:w-auto">
           <PaginationItem>
             <PaginationPrevious disabled={page <= 1} onClick={() => onPageChange(page - 1)} />
           </PaginationItem>
           <PaginationItem>
-            <span className="px-2 text-sm text-muted-foreground">
+            <span className="px-2 text-sm whitespace-nowrap text-muted-foreground">
               Halaman {page} dari {totalPages}
             </span>
           </PaginationItem>

@@ -7,6 +7,7 @@ import type { StaffItem, StaffRole } from "@/lib/types"
 import { ImageField } from "@/components/admin/file-fields"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -196,8 +197,9 @@ export function AdminGuruPage({ staff, filters }: { staff: StaffItem[]; filters:
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Tabs value={filters.role} onValueChange={(v) => visit({ q: filters.q, role: String(v) })}>
-          <TabsList className="h-auto flex-wrap">
+        <Tabs value={filters.role} onValueChange={(v) => visit({ q: filters.q, role: String(v) })} className="w-full sm:w-auto">
+          {/* Ponsel: grid 3 kolom dua baris, garis bawah per sel supaya tiap baris punya garisnya sendiri. */}
+          <TabsList className="grid w-full grid-cols-3 gap-0 border-b-0 *:border-b sm:flex sm:w-fit sm:flex-wrap sm:gap-1 sm:border-b sm:*:border-b-0">
             <TabsTrigger value="all">Semua</TabsTrigger>
             <TabsTrigger value="vice_principal">Wakasek</TabsTrigger>
             <TabsTrigger value="program_head">Kaprog</TabsTrigger>
@@ -213,7 +215,7 @@ export function AdminGuruPage({ staff, filters }: { staff: StaffItem[]; filters:
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead>Nama</TableHead>
@@ -232,7 +234,7 @@ export function AdminGuruPage({ staff, filters }: { staff: StaffItem[]; filters:
             ) : (
               staff.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell>
+                  <TableCell kartu="judul">
                     <div className="flex items-center gap-3">
                       <Avatar>
                         {member.image_url && <AvatarImage src={member.image_url} alt={member.name} loading="lazy" className="object-cover object-top" />}
@@ -249,21 +251,19 @@ export function AdminGuruPage({ staff, filters }: { staff: StaffItem[]; filters:
                   <TableCell className="max-w-xs truncate text-muted-foreground" title={member.expertise || member.subject || member.position || undefined}>
                     {member.expertise || member.subject || member.position || "-"}
                   </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Edit"
+                  <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                    <TombolAksi
+                      jenis="edit"
                       onClick={() => {
                         setEditing(member)
                         setOpen(true)
                       }}
                     >
                       <Pencil />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(member)}>
+                    </TombolAksi>
+                    <TombolAksi jenis="hapus" onClick={() => handleDelete(member)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

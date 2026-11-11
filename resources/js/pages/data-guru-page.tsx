@@ -14,6 +14,7 @@ import { AttendanceHeatmap } from "@/components/absensi/attendance-heatmap"
 import { GuruQrCode } from "@/components/absensi/guru-qr-code"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { DataPagination } from "@/components/data-pagination"
 import {
@@ -276,7 +277,7 @@ function GuruPage({ guruList, search: initialSearch }: Props) {
       />
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -299,15 +300,19 @@ function GuruPage({ guruList, search: initialSearch }: Props) {
             ) : (
               paginatedList.map((guru, index) => (
                 <TableRow key={guru.id}>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
-                  <TableCell>
+                  <TableCell kartu="sembunyi">
                     <GuruAvatar guru={guru} />
                   </TableCell>
                   <TableCell className="font-mono text-xs">{guru.user.username}</TableCell>
-                  <TableCell>
+                  <TableCell kartu="judul">
                     <div className="flex items-center gap-2">
+                      {/* Di ponsel kolom foto disembunyikan; fotonya tampil di samping nama. */}
+                      <span className="md:hidden">
+                        <GuruAvatar guru={guru} />
+                      </span>
                       {guru.nama}
                       {guru.user.role === "KEPSEK" && <Badge variant="secondary">Kepsek</Badge>}
                     </div>
@@ -319,27 +324,23 @@ function GuruPage({ guruList, search: initialSearch }: Props) {
                       {guru.aktif ? "Aktif" : "Nonaktif"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell kartu="aksi" className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openDetail(guru)}>
-                        <Eye />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" onClick={() => setQrFor(guru)}>
-                        <QrCode />
-                      </Button>
                       {isAdmin && (
-                        <>
-                          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(guru)}>
-                            <Pencil />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleDelete(guru)}
-                          >
-                            <Trash2 />
-                          </Button>
-                        </>
+                        <TombolAksi jenis="edit" onClick={() => openEdit(guru)}>
+                          <Pencil />
+                        </TombolAksi>
+                      )}
+                      <TombolAksi jenis="lihat" onClick={() => openDetail(guru)}>
+                        <Eye />
+                      </TombolAksi>
+                      <TombolAksi label="QR" aria-label="Kode QR" onClick={() => setQrFor(guru)}>
+                        <QrCode />
+                      </TombolAksi>
+                      {isAdmin && (
+                        <TombolAksi jenis="hapus" onClick={() => handleDelete(guru)}>
+                          <Trash2 />
+                        </TombolAksi>
                       )}
                     </div>
                   </TableCell>

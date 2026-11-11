@@ -96,15 +96,14 @@ export function TeamSection({ staff }: { staff: StaffItem[] }) {
               setExpanded(false)
             }}
           >
-            {/* Tiga kolom sama lebar supaya simetris. group-data-horizontal/tabs:h-auto melepas tinggi tetap 32px
-                bawaan list, kalau tidak tab 44px di layar kecil menjulur keluar dari latarnya. */}
-            <TabsList className="grid w-full grid-cols-3 items-stretch group-data-horizontal/tabs:h-auto sm:group-data-horizontal/tabs:h-8 md:w-[26rem]">
+            {/* Tiga kolom sama lebar supaya simetris. */}
+            <TabsList className="grid w-full grid-cols-3 items-stretch md:w-[26rem]">
               {GROUPS.map((g) => (
-                // Target sentuh 44px di layar kecil; teks nonaktif digelapkan (muted-foreground di atas muted hanya 4,3:1).
+                // Layar kecil: label dan jumlah ditumpuk dua baris supaya label panjang tidak terpotong.
                 <TabsTrigger
                   key={g.id}
                   value={g.id}
-                  className="h-auto min-h-11 flex-col gap-0 px-2 py-1.5 text-center leading-tight whitespace-normal text-foreground/75 data-active:text-foreground sm:min-h-0 sm:flex-row sm:gap-1.5"
+                  className="flex-col gap-0 px-2 py-2 text-center leading-tight whitespace-normal sm:flex-row sm:gap-1.5 sm:py-3"
                 >
                   <span>{g.label}</span>
                   <span className="font-normal tabular-nums">{byGroup[g.id].length}</span>

@@ -440,7 +440,7 @@ export function EditorSoalPage({ post, kelas, kelasLain, terkunci, bagiRata: bag
                       onClick={() => ubahTipe(index, tipe)}
                       title={PETUNJUK_TIPE_SOAL[tipe]}
                       className={cn(
-                        "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                        "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors max-md:py-2.5",
                         s.tipe === tipe ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"
                       )}
                     >
@@ -533,7 +533,7 @@ export function EditorSoalPage({ post, kelas, kelasLain, terkunci, bagiRata: bag
                               name={`kunci-${s.kunciUnik}`}
                               checked={s.kunci[0] === String(o)}
                               onChange={() => setKunciPg(index, o)}
-                              className="size-4 shrink-0 accent-primary"
+                              className="size-4 shrink-0 accent-primary max-md:size-6"
                               aria-label={`Jawaban benar: pilihan ${HURUF[o]}`}
                             />
                           )}
@@ -542,7 +542,7 @@ export function EditorSoalPage({ post, kelas, kelasLain, terkunci, bagiRata: bag
                               type="checkbox"
                               checked={s.kunci.includes(String(o))}
                               onChange={() => togelMcma(index, o)}
-                              className="size-4 shrink-0 accent-primary"
+                              className="size-4 shrink-0 accent-primary max-md:size-6"
                               aria-label={`Jawaban benar: pilihan ${HURUF[o]}`}
                             />
                           )}
@@ -572,7 +572,7 @@ export function EditorSoalPage({ post, kelas, kelasLain, terkunci, bagiRata: bag
                                   aria-checked={s.kunci[o] === nilai}
                                   onClick={() => setKategori(index, o, nilai)}
                                   className={cn(
-                                    "min-h-9 rounded-lg border px-3 text-sm font-medium transition-colors",
+                                    "min-h-9 rounded-lg border px-3 text-sm font-medium transition-colors max-md:min-h-11",
                                     s.kunci[o] === nilai ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"
                                   )}
                                 >

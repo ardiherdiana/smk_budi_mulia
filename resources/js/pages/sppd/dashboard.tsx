@@ -89,7 +89,7 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto rounded-lg border">
-                            <Table>
+                            <Table kartu>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-10">No</TableHead>
@@ -112,8 +112,8 @@ export default function Dashboard() {
 
                                             return (
                                                 <TableRow key={p.id}>
-                                                    <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell kartu="sembunyi" className="text-muted-foreground">{index + 1}</TableCell>
+                                                    <TableCell kartu="judul">
                                                         <Link href={route('sppd.pengajuan.show', p.id)} className="font-medium hover:underline">
                                                             {p.pemohon}
                                                         </Link>

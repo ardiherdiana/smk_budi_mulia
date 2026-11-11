@@ -207,7 +207,7 @@ export function KioskPage({ settings }: { settings?: Settings }) {
       <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-neutral-950 p-6 text-white">
         <Link
           href="/absen/dashboard"
-          className="absolute top-4 left-4 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
+          className="absolute top-2 left-2 flex min-h-11 items-center gap-1.5 px-2 text-sm text-white/70 hover:text-white"
         >
           <ArrowLeft className="size-4" />
           Kembali ke dashboard
@@ -216,7 +216,7 @@ export function KioskPage({ settings }: { settings?: Settings }) {
           <button
             type="button"
             onClick={() => changeMode("kamera")}
-            className="absolute top-4 right-4 flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
+            className="absolute top-2 right-2 flex min-h-11 items-center gap-1.5 px-2 text-sm text-white/70 hover:text-white"
           >
             <Camera className="size-4" />
             Pakai kamera

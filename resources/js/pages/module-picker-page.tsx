@@ -3,6 +3,7 @@ import {
   ArrowRight,
   CalendarCheck,
   CircleUserRound,
+  ClipboardCheck,
   Contact,
   FileCheck2,
   Globe,
@@ -16,7 +17,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-type ModuleKey = "website" | "skl" | "classroom" | "absensi" | "sppd" | "dataguru" | "profil"
+type ModuleKey = "website" | "skl" | "classroom" | "absensi" | "sppd" | "supervisi" | "dataguru" | "profil"
 
 interface ModuleCard {
   title: string
@@ -50,6 +51,11 @@ const CARDS: Record<ModuleKey, ModuleCard> = {
     description: "Pengajuan perjalanan dinas, persetujuan, dan pencairan",
     icon: Send,
   },
+  supervisi: {
+    title: "Supervisi",
+    description: "Jadwal, instrumen observasi pembelajaran mendalam, dan rekap supervisi guru",
+    icon: ClipboardCheck,
+  },
   dataguru: {
     title: "Data Guru",
     description: "Data master guru untuk semua modul: akun, foto, dan QR absen",
@@ -62,16 +68,18 @@ const CARDS: Record<ModuleKey, ModuleCard> = {
   },
 }
 
-// 2 kartu (siswa) berdampingan; 3 kartu satu baris; 4 kartu (guru) 2x2; 5 kartu ke atas (kepsek, admin) 3 kolom di layar lebar.
+// 2 kartu (siswa) berdampingan; 3 kartu satu baris; 4 kartu 2x2; 5-6 kartu (guru, kepsek) 3 kolom di layar lebar;
+// 8 kartu (admin) 4 kolom supaya dua baris penuh.
 function kolomGrid(jumlah: number) {
   if (jumlah === 3) return "sm:grid-cols-3"
+  if (jumlah === 8) return "sm:grid-cols-2 lg:grid-cols-4"
   if (jumlah >= 5) return "sm:grid-cols-2 lg:grid-cols-3"
   return "sm:grid-cols-2"
 }
 
 interface PageProps {
   modul: { key: ModuleKey; href: string }[]
-  /** Notifikasi terpusat (Absensi + SPPD); satu-satunya tempat notifikasi ditampilkan. */
+  /** Notifikasi terpusat (Absensi, SPPD, Supervisi); satu-satunya tempat notifikasi ditampilkan. */
   notifikasi: DataNotifikasi
   auth: { user: { email?: string; username?: string; name?: string } | null }
   [key: string]: unknown

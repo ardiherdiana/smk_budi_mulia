@@ -12,7 +12,8 @@ import { SklLayout } from "@/layouts/skl-layout"
 import type { FlashToast } from "@/lib/types"
 
 // Halaman full-bleed (tanpa sidebar). Layout dipilih dari awalan nama halaman: `classroom/*` ClassroomLayout,
-// `skl/*` SklLayout, `absensi/*` AbsensiLayout, `sppd/*` SppdLayout, semua halaman lain DashboardLayout (panel Website).
+// `skl/*` SklLayout, `absensi/*` AbsensiLayout, `sppd/*` SppdLayout, `supervisi/*` SupervisiLayout, semua halaman lain
+// DashboardLayout (panel Website).
 const BARE_PAGES = new Set([
   "landing-page",
   "login-page",
@@ -24,12 +25,13 @@ const BARE_PAGES = new Set([
   "absensi/kiosk-page",
 ])
 
-// Layout absensi dan SPPD dimuat lazy bersama halamannya supaya bundle halaman publik tidak ikut membesar.
+// Layout absensi, SPPD, dan Supervisi dimuat lazy bersama halamannya supaya bundle halaman publik tidak ikut membesar.
 async function layoutUntuk(name: string): Promise<React.ComponentType<{ children: React.ReactNode }>> {
   if (name.startsWith("classroom/")) return ClassroomLayout
   if (name.startsWith("skl/")) return SklLayout
   if (name.startsWith("absensi/")) return (await import("@/layouts/absensi-layout")).AbsensiLayout
   if (name.startsWith("sppd/")) return (await import("@/layouts/sppd-layout")).SppdLayout
+  if (name.startsWith("supervisi/")) return (await import("@/layouts/supervisi-layout")).SupervisiLayout
   return DashboardLayout
 }
 

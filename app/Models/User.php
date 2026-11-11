@@ -7,6 +7,7 @@ use App\Models\Classroom\Kelas;
 use App\Models\Classroom\Post as ClassroomPost;
 use App\Models\Sppd\PengajuanSppd;
 use App\Models\Sppd\SppdNotification;
+use App\Models\Supervisi\Supervisi;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -135,7 +136,7 @@ class User extends Authenticatable
      * (riwayat kehadiran lewat `guru.userId`, pengajuan SPPD, profil Classroom), jadi tiap halaman hapus akun menolak
      * bila ada modul LAIN di daftar ini dan menyarankan nonaktifkan.
      *
-     * @return list<'Absensi'|'SPPD'|'Classroom'>
+     * @return list<'Absensi'|'SPPD'|'Classroom'|'Supervisi'>
      */
     public function modulTerpakai(): array
     {
@@ -161,6 +162,11 @@ class User extends Authenticatable
 
         if (Kelas::where('guruId', $id)->exists() || ClassroomPost::where('dibuatOleh', $id)->exists()) {
             $modul[] = 'Classroom';
+        }
+
+        // `supervisi.guruId`/`supervisorId` RESTRICT: riwayat supervisi tidak ikut terhapus bersama akunnya.
+        if (Supervisi::where('guruId', $id)->orWhere('supervisorId', $id)->exists()) {
+            $modul[] = 'Supervisi';
         }
 
         return $modul;

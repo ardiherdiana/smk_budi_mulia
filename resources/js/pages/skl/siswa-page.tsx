@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import type { Credential, Paginated } from "@/lib/types"
 import { DataPagination } from "@/components/data-pagination"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -286,8 +287,16 @@ export function AdminSiswaPage({ users, filters }: Props) {
         )}
       </div>
 
+      {/* Di ponsel kepala tabel tidak tampil, jadi "pilih semua" dipindah ke atas daftar. */}
+      {users.data.length > 0 && (
+        <label className="flex min-h-11 items-center gap-3 text-sm md:hidden">
+          <Checkbox checked={allSelected} onCheckedChange={(checked) => setSelected(checked === true ? users.data.map((u) => u.id) : [])} />
+          Pilih semua di halaman ini
+        </label>
+      )}
+
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">
@@ -321,24 +330,19 @@ export function AdminSiswaPage({ users, filters }: Props) {
                       }
                     />
                   </TableCell>
-                  <TableCell className="max-w-xs truncate font-medium md:max-w-md" title={student.email}>
+                  <TableCell kartu="judul" className="max-w-xs truncate font-medium md:max-w-md" title={student.email}>
                     {student.email}
                   </TableCell>
                   <TableCell>
                     {student.files_count > 0 ? <Badge variant="success">{student.files_count} berkas</Badge> : <Badge variant="warning">Belum ada</Badge>}
                   </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Ubah password"
-                      onClick={() => setResetTarget({ ids: [student.id], label: student.email })}
-                    >
+                  <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                    <TombolAksi label="Ubah password" onClick={() => setResetTarget({ ids: [student.id], label: student.email })}>
                       <KeyRound />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Hapus akun" onClick={() => handleDelete(student)}>
+                    </TombolAksi>
+                    <TombolAksi jenis="hapus" aria-label="Hapus akun" onClick={() => handleDelete(student)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

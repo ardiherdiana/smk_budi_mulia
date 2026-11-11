@@ -49,7 +49,7 @@ export function RiwayatPage({ rows, from, to }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -69,8 +69,8 @@ export function RiwayatPage({ rows, from, to }: Props) {
             ) : (
               rows.map((row, index) => (
                 <TableRow key={row.id}>
-                  <TableCell className="text-muted-foreground">{index + 1}</TableCell>
-                  <TableCell>{formatTanggal(row.tanggal)}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell kartu="judul">{formatTanggal(row.tanggal)}</TableCell>
                   <TableCell>{formatJam(row.jamMasuk)}</TableCell>
                   <TableCell>{formatJam(row.jamPulang)}</TableCell>
                   <TableCell>

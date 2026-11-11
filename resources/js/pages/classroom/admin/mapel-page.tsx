@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react"
 
 import { useAuth } from "@/context/classroom-auth"
 import { useConfirm } from "@/hooks/use-confirm"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -89,7 +90,7 @@ export function MapelPage({ mapel }: { mapel: Mapel[] }) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -108,18 +109,18 @@ export function MapelPage({ mapel }: { mapel: Mapel[] }) {
             ) : (
               mapel.map((m, i) => (
                 <TableRow key={m.id}>
-                  <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium">{m.nama}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell kartu="judul" className="font-medium">{m.nama}</TableCell>
                   <TableCell className="text-right">{m.jumlahKelas}</TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => ubah(m)} aria-label={`Ubah ${m.nama}`}>
+                        <TombolAksi jenis="edit" onClick={() => ubah(m)} aria-label={`Edit ${m.nama}`}>
                           <Pencil />
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" onClick={() => hapus(m)} aria-label={`Hapus ${m.nama}`}>
+                        </TombolAksi>
+                        <TombolAksi jenis="hapus" onClick={() => hapus(m)} aria-label={`Hapus ${m.nama}`}>
                           <Trash2 />
-                        </Button>
+                        </TombolAksi>
                       </div>
                     </TableCell>
                   )}

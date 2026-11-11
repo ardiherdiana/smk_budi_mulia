@@ -12,6 +12,7 @@ import {
   toTimeInputValue,
 } from "@/lib/absensi/attendance-format"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { DataPagination } from "@/components/data-pagination"
 import { DatePicker } from "@/components/absensi/date-picker"
@@ -209,7 +210,7 @@ export function BriefingPage({
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -238,21 +239,21 @@ export function BriefingPage({
                 .filter((r) => r.status !== null)
                 .map((row, index) => (
                   <TableRow key={`${row.guruId}-${row.tanggal}`}>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell kartu="sembunyi" className="text-muted-foreground">
                       {(page - 1) * pageSize + index + 1}
                     </TableCell>
                     <TableCell>{row.tanggal}</TableCell>
-                    <TableCell>{row.nama}</TableCell>
+                    <TableCell kartu="judul">{row.nama}</TableCell>
                     <TableCell>{formatJam(row.waktu)}</TableCell>
                     <TableCell>
                       {row.status && (
                         <Badge variant={statusBadgeVariant(row.status)}>{statusLabel(row.status)}</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(row)}>
+                    <TableCell kartu="aksi" className="text-right">
+                      <TombolAksi jenis="edit" onClick={() => openEdit(row)} aria-label={`Edit absen briefing ${row.nama}`}>
                         <Pencil />
-                      </Button>
+                      </TombolAksi>
                     </TableCell>
                   </TableRow>
                 ))

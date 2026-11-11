@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react"
 
 import { useAuth } from "@/context/classroom-auth"
 import { useConfirm } from "@/hooks/use-confirm"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -122,7 +123,7 @@ export function RombelPage({ rombel, guru }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -144,21 +145,21 @@ export function RombelPage({ rombel, guru }: Props) {
             ) : (
               rombel.map((r, i) => (
                 <TableRow key={r.id}>
-                  <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium">{r.nama}</TableCell>
+                  <TableCell kartu="sembunyi" className="text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell kartu="judul" className="font-medium">{r.nama}</TableCell>
                   <TableCell>{r.jurusan}</TableCell>
                   <TableCell>{r.waliKelas ?? <span className="text-muted-foreground">-</span>}</TableCell>
                   <TableCell className="text-right">{r.jumlahSiswa}</TableCell>
                   <TableCell className="text-right">{r.jumlahKelas}</TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell kartu="aksi" className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => ubah(r)} aria-label={`Ubah ${r.nama}`}>
+                        <TombolAksi jenis="edit" onClick={() => ubah(r)} aria-label={`Edit ${r.nama}`}>
                           <Pencil />
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" onClick={() => hapus(r)} aria-label={`Hapus ${r.nama}`}>
+                        </TombolAksi>
+                        <TombolAksi jenis="hapus" onClick={() => hapus(r)} aria-label={`Hapus ${r.nama}`}>
                           <Trash2 />
-                        </Button>
+                        </TombolAksi>
                       </div>
                     </TableCell>
                   )}

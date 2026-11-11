@@ -1,6 +1,6 @@
 import * as React from "react"
 import { router } from "@inertiajs/react"
-import { Bell, CheckCheck, FileText, LogIn, LogOut, Send } from "lucide-react"
+import { Bell, CheckCheck, ClipboardCheck, FileText, LogIn, LogOut, Send } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils"
 
 export interface NotifikasiItem {
   id: string
-  sumber: "absensi" | "sppd"
-  tipe: "CHECKIN" | "CHECKOUT" | "LEAVE_REQUEST" | "SPPD"
+  sumber: "absensi" | "sppd" | "supervisi"
+  tipe: "CHECKIN" | "CHECKOUT" | "LEAVE_REQUEST" | "SPPD" | "SUPERVISI"
   judul: string
   pesan: string
   waktu: string
@@ -26,6 +26,7 @@ const TIPE: Record<NotifikasiItem["tipe"], { icon: React.ComponentType<{ classNa
   CHECKOUT: { icon: LogOut, kelas: "bg-sky-500/10 text-sky-600" },
   LEAVE_REQUEST: { icon: FileText, kelas: "bg-amber-500/10 text-amber-600" },
   SPPD: { icon: Send, kelas: "bg-secondary text-secondary-foreground" },
+  SUPERVISI: { icon: ClipboardCheck, kelas: "bg-secondary text-secondary-foreground" },
 }
 
 function formatWaktu(iso: string): string {
@@ -33,8 +34,8 @@ function formatWaktu(iso: string): string {
 }
 
 /**
- * Lonceng notifikasi terpusat di topbar Menu Utama: gabungan notifikasi Absensi (admin dan kepsek) dan SPPD (milik akun
- * sendiri). Klik satu item = tandai dibaca lalu buka halamannya; server yang menentukan tujuannya.
+ * Lonceng notifikasi terpusat di topbar Menu Utama: gabungan notifikasi Absensi (admin dan kepsek), SPPD, dan Supervisi
+ * (milik akun sendiri). Klik satu item = tandai dibaca lalu buka halamannya; server yang menentukan tujuannya.
  */
 export function NotifikasiLonceng({ data }: { data: DataNotifikasi }) {
   const [buka, setBuka] = React.useState(false)

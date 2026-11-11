@@ -43,6 +43,9 @@ export function KelasHeader({ kelas }: { kelas: KelasHeaderData }) {
     if (ok) router.delete(dasar)
   }
 
+  const labelArsip = kelas.diarsipkan ? "Pulihkan" : "Arsipkan"
+  const IkonArsip = kelas.diarsipkan ? ArchiveRestore : Archive
+
   return (
     <div className="flex flex-col gap-1">
       {confirmDialog}
@@ -59,10 +62,21 @@ export function KelasHeader({ kelas }: { kelas: KelasHeaderData }) {
             {kelas.rombel} · {kelas.guru} · {kelas.tahunAjaran} · {kelas.jumlahSiswa} siswa
           </p>
         </div>
+        {/* Ponsel: tombol kelola berupa ikon di baris judul supaya keempat tab muat satu baris. */}
+        {kelas.dapatDikelola && (
+          <div className="ml-auto flex shrink-0 gap-1 md:hidden">
+            <Button variant="ghost" size="icon-sm" onClick={arsip} aria-label={`${labelArsip} ruang kelas`}>
+              <IkonArsip />
+            </Button>
+            <Button variant="ghost" size="icon-sm" onClick={hapus} aria-label="Hapus ruang kelas">
+              <Trash2 />
+            </Button>
+          </div>
+        )}
       </div>
       {kelas.deskripsi && <p className="max-w-2xl px-1 text-sm text-muted-foreground">{kelas.deskripsi}</p>}
       <div className="flex items-center justify-between gap-2 border-b">
-        <nav className="flex gap-1 overflow-x-auto" aria-label="Menu ruang kelas">
+        <nav className="flex gap-1 overflow-x-auto max-md:w-full max-md:justify-between" aria-label="Menu ruang kelas">
           {TAB.map((tab) => {
             const href = `${dasar}${tab.path}`
             const aktif = pathname === href
@@ -71,8 +85,11 @@ export function KelasHeader({ kelas }: { kelas: KelasHeaderData }) {
                 key={tab.label}
                 href={href}
                 className={cn(
-                  "relative px-4 py-3 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground",
-                  aktif && "text-primary after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary"
+                  "relative px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors",
+                  // Gaya yang sama dengan components/ui/tabs.tsx; tab aktif tetap oranye saat disorot.
+                  aktif
+                    ? "text-primary after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 aria-current={aktif ? "page" : undefined}
               >
@@ -82,10 +99,10 @@ export function KelasHeader({ kelas }: { kelas: KelasHeaderData }) {
           })}
         </nav>
         {kelas.dapatDikelola && (
-          <div className="flex shrink-0 gap-1">
+          <div className="hidden shrink-0 gap-1 md:flex">
             <Button variant="ghost" size="sm" onClick={arsip}>
-              {kelas.diarsipkan ? <ArchiveRestore /> : <Archive />}
-              {kelas.diarsipkan ? "Pulihkan" : "Arsipkan"}
+              <IkonArsip />
+              {labelArsip}
             </Button>
             <Button variant="ghost" size="icon-sm" onClick={hapus} aria-label="Hapus ruang kelas">
               <Trash2 />

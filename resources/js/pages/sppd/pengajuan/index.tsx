@@ -1,5 +1,6 @@
 import { DataPagination } from '@/components/sppd/data-pagination';
 import { Badge } from '@/components/ui/badge';
+import { TombolAksi } from '@/components/tombol-aksi';
 import { Button } from '@/components/ui/button';
 import {
     Select,
@@ -95,7 +96,7 @@ export default function Index() {
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border">
-                    <Table>
+                    <Table kartu>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-10">No</TableHead>
@@ -119,11 +120,11 @@ export default function Index() {
 
                                     return (
                                         <TableRow key={p.id}>
-                                            <TableCell className="text-muted-foreground">
+                                            <TableCell kartu="sembunyi" className="text-muted-foreground">
                                                 {(pengajuans.current_page - 1) * pengajuans.per_page + index + 1}
                                             </TableCell>
                                             {!isPemohonOnly && (
-                                                <TableCell>
+                                                <TableCell kartu="judul">
                                                     <div className="font-medium">{p.pemohon.name}</div>
                                                 </TableCell>
                                             )}
@@ -139,15 +140,14 @@ export default function Index() {
                                             <TableCell>
                                                 <Badge variant={badge.variant}>{badge.label}</Badge>
                                             </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-sm"
+                                            <TableCell kartu="aksi" className="text-right">
+                                                <TombolAksi
+                                                    jenis="lihat"
                                                     nativeButton={false}
                                                     render={<Link href={route('sppd.pengajuan.show', p.id)} />}
                                                 >
                                                     <EyeIcon />
-                                                </Button>
+                                                </TombolAksi>
                                             </TableCell>
                                         </TableRow>
                                     );

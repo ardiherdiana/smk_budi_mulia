@@ -6,6 +6,7 @@ import { Check, Eye, Paperclip, X } from "lucide-react"
 import { assetUrl } from "@/lib/absensi/api"
 import type { LeaveRequest, StatusIzin } from "@/lib/absensi/types"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { DataPagination } from "@/components/data-pagination"
 import {
@@ -101,7 +102,7 @@ export function AdminIzinPage({ list, filter }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">No</TableHead>
@@ -125,10 +126,10 @@ export function AdminIzinPage({ list, filter }: Props) {
                 const badge = statusBadge(item.status)
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell kartu="sembunyi" className="text-muted-foreground">
                       {(page - 1) * pageSize + index + 1}
                     </TableCell>
-                    <TableCell>
+                    <TableCell kartu="judul">
                       <div className="font-medium">{item.guru?.nama}</div>
                     </TableCell>
                     <TableCell>{item.jenis === "IZIN" ? "Izin" : "Sakit"}</TableCell>
@@ -139,10 +140,10 @@ export function AdminIzinPage({ list, filter }: Props) {
                     <TableCell>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon-sm" onClick={() => setDetail(item)}>
+                    <TableCell kartu="aksi" className="text-right">
+                      <TombolAksi jenis="lihat" onClick={() => setDetail(item)}>
                         <Eye />
-                      </Button>
+                      </TombolAksi>
                     </TableCell>
                   </TableRow>
                 )

@@ -7,6 +7,7 @@ import { formatTanggal } from "@/lib/format"
 import { DataPagination } from "@/components/data-pagination"
 import { GalleryField, ImageField } from "@/components/admin/file-fields"
 import { Badge } from "@/components/ui/badge"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -295,7 +296,7 @@ export function AdminBeritaPage({ posts, filters }: Props) {
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-20">Sampul</TableHead>
@@ -321,7 +322,7 @@ export function AdminBeritaPage({ posts, filters }: Props) {
                       {post.cover_url ? <img src={post.cover_url} alt="" loading="lazy" className="size-full object-cover" /> : <Newspaper className="size-4" />}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-md">
+                  <TableCell kartu="judul" className="max-w-md">
                     <p className="line-clamp-2 font-medium">{post.title}</p>
                   </TableCell>
                   <TableCell>
@@ -332,24 +333,26 @@ export function AdminBeritaPage({ posts, filters }: Props) {
                     {post.category ?? "-"}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">{formatTanggal(post.date)}</TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button variant="ghost" size="icon-sm" aria-label="Lihat di website" render={<a href={`/berita/${post.id}`} target="_blank" rel="noreferrer" />}>
-                      <ExternalLink />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Edit"
+                  <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                    <TombolAksi
+                      jenis="edit"
                       onClick={() => {
                         setEditing(post)
                         setOpen(true)
                       }}
                     >
                       <Pencil />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(post)}>
+                    </TombolAksi>
+                    <TombolAksi
+                      jenis="lihat"
+                      aria-label="Lihat di website"
+                      render={<a href={`/berita/${post.id}`} target="_blank" rel="noreferrer" />}
+                    >
+                      <ExternalLink />
+                    </TombolAksi>
+                    <TombolAksi jenis="hapus" onClick={() => handleDelete(post)}>
                       <Trash2 />
-                    </Button>
+                    </TombolAksi>
                   </TableCell>
                 </TableRow>
               ))

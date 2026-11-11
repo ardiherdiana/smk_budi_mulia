@@ -1,6 +1,7 @@
 import { DataPagination } from '@/components/sppd/data-pagination';
 import { useConfirm } from '@/hooks/use-confirm';
 import { Badge } from '@/components/ui/badge';
+import { TombolAksi } from '@/components/tombol-aksi';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -67,7 +68,7 @@ export default function Index() {
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border">
-                    <Table>
+                    <Table kartu>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-10">No</TableHead>
@@ -88,10 +89,10 @@ export default function Index() {
                             ) : (
                                 items.data.map((p, index) => (
                                     <TableRow key={p.id}>
-                                        <TableCell className="text-muted-foreground">
+                                        <TableCell kartu="sembunyi" className="text-muted-foreground">
                                             {(items.current_page - 1) * items.per_page + index + 1}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell kartu="judul">
                                             <div className="font-medium">{p.name}</div>
                                             {p.jabatan && <div className="text-xs text-muted-foreground">{p.jabatan}</div>}
                                         </TableCell>
@@ -110,19 +111,18 @@ export default function Index() {
                                                 {p.is_active ? 'Aktif' : 'Nonaktif'}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell kartu="aksi" className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-sm"
+                                                <TombolAksi
+                                                    jenis="edit"
                                                     nativeButton={false}
                                                     render={<Link href={route('sppd.pegawai.edit', p.id)} />}
                                                 >
                                                     <PencilIcon />
-                                                </Button>
-                                                <Button variant="ghost" size="icon-sm" onClick={() => hapus(p)}>
+                                                </TombolAksi>
+                                                <TombolAksi jenis="hapus" onClick={() => hapus(p)}>
                                                     <Trash2Icon />
-                                                </Button>
+                                                </TombolAksi>
                                             </div>
                                         </TableCell>
                                     </TableRow>

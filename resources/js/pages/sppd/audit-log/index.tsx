@@ -41,7 +41,7 @@ export default function Index() {
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border">
-                    <Table>
+                    <Table kartu>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-10">No</TableHead>
@@ -61,11 +61,11 @@ export default function Index() {
                             ) : (
                                 items.data.map((log, index) => (
                                     <TableRow key={log.id}>
-                                        <TableCell className="text-muted-foreground">
+                                        <TableCell kartu="sembunyi" className="text-muted-foreground">
                                             {(items.current_page - 1) * items.per_page + index + 1}
                                         </TableCell>
                                         <TableCell className="whitespace-nowrap">{new Date(log.created_at).toLocaleString('id-ID')}</TableCell>
-                                        <TableCell>{log.user?.name ?? 'Sistem'}</TableCell>
+                                        <TableCell kartu="judul">{log.user?.name ?? 'Sistem'}</TableCell>
                                         <TableCell>
                                             {entityLabel(log.entitas_terkait) === 'PengajuanSppd' ? (
                                                 <Link href={route('sppd.pengajuan.show', log.entitas_id)} className="hover:underline">

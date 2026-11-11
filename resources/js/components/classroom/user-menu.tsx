@@ -23,7 +23,7 @@ export function UserMenu() {
           <button
             type="button"
             aria-label="Menu akun"
-            className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:p-1.5"
           />
         }
       >

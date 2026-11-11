@@ -5,6 +5,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react"
 import type { Major } from "@/lib/types"
 import { ImageField } from "@/components/admin/file-fields"
 import { iconFor } from "@/components/landing/icon-map"
+import { TombolAksi } from "@/components/tombol-aksi"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -147,7 +148,7 @@ export function AdminJurusanPage({ majors, icons }: { majors: Major[]; icons: st
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
-        <Table>
+        <Table kartu>
           <TableHeader>
             <TableRow>
               <TableHead className="w-24">Gambar</TableHead>
@@ -173,7 +174,7 @@ export function AdminJurusanPage({ majors, icons }: { majors: Major[]; icons: st
                         {major.image_url ? <img src={major.image_url} alt="" loading="lazy" className="size-full object-contain" /> : <Icon className="size-5" />}
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-xs md:max-w-md lg:max-w-xl">
+                    <TableCell kartu="judul" className="max-w-xs md:max-w-md lg:max-w-xl">
                       <p className="truncate font-medium" title={major.name}>
                         {major.name}
                       </p>
@@ -182,21 +183,19 @@ export function AdminJurusanPage({ majors, icons }: { majors: Major[]; icons: st
                       </p>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{major.youtube_id ? "YouTube" : "-"}</TableCell>
-                    <TableCell className="text-right whitespace-nowrap">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Edit"
+                    <TableCell kartu="aksi" className="text-right whitespace-nowrap">
+                      <TombolAksi
+                        jenis="edit"
                         onClick={() => {
                           setEditing(major)
                           setOpen(true)
                         }}
                       >
                         <Pencil />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" aria-label="Hapus" onClick={() => handleDelete(major)}>
+                      </TombolAksi>
+                      <TombolAksi jenis="hapus" onClick={() => handleDelete(major)}>
                         <Trash2 />
-                      </Button>
+                      </TombolAksi>
                     </TableCell>
                   </TableRow>
                 )
