@@ -59,7 +59,7 @@ export function SppdSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
     const sistem: NavItem[] = [];
 
     if (isAdmin || roles.some((r) => ['kepala_sekolah', 'tu', 'bendahara'].includes(r))) {
-        sistem.push({ title: 'Log Audit', url: path('sppd.audit-log.index'), icon: FileClockIcon });
+        sistem.push({ title: 'Riwayat SPPD', url: path('sppd.audit-log.index'), icon: FileClockIcon });
     }
 
     const groups: NavGroup[] = [{ label: 'Menu', items: menu }];

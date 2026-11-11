@@ -153,7 +153,9 @@ class GabungImporAbsensiTest extends TestCase
         $this->assertDatabaseHas('pengajuan_pengikut', ['pengajuan_id' => 5, 'user_id' => $rio->id]);
         $this->assertDatabaseHas('log_audits', ['id' => 9, 'user_id' => $id(self::ADMIN)]);
         $this->assertDatabaseHas('laporan_perjalanans', ['id' => 4, 'ditulis_oleh' => $id(self::GURU)]);
-        $this->assertDatabaseHas('sppd_notifications', ['notifiable_id' => (string) $id(self::GURU)]);
+        // Notifikasi SPPD masuk ke tabel notifikasi bersama; notifikasi absensi lama sengaja tidak disalin.
+        $this->assertDatabaseHas('notifikasi', ['notifiable_id' => (string) $id(self::GURU)]);
+        $this->assertDatabaseCount('notifikasi', 1);
 
         // Role SPPD dicocokkan lewat nama, bukan id lama.
         $pemohon = DB::table('roles')->where('name', 'pemohon')->value('id');

@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LegacyRedirectController;
+use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\Portal\PortalController;
@@ -56,6 +57,9 @@ Route::middleware(['auth', 'no-store'])->group(function () {
     Route::get('/profil', [ProfilController::class, 'edit'])->name('profil');
     Route::patch('/profil/password', [ProfilController::class, 'gantiPassword'])->name('profil.password');
     Route::post('/profil/foto', [ProfilController::class, 'unggahFoto'])->name('profil.foto');
+
+    // ---- Log aktivitas bersama semua modul (admin saja, data 30 hari terakhir) ----
+    Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->middleware('role:admin')->name('log-aktivitas');
 
     // ---- Classroom ----------------------------------------------------------
     require __DIR__.'/classroom.php';

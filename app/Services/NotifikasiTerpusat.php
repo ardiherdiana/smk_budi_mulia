@@ -2,154 +2,120 @@
 
 namespace App\Services;
 
-use App\Models\Notification;
-use App\Models\Sppd\SppdNotification;
+use App\Models\Notifikasi;
 use App\Models\User;
+use App\Notifications\Absensi\AbsensiNotifikasi;
 use App\Notifications\Supervisi\SupervisiNotifikasi;
-use Illuminate\Support\Collection;
 
 /**
- * Notifikasi terpusat: satu daftar untuk lonceng di topbar Menu Utama, gabungan tiga sumber.
+ * Notifikasi terpusat: daftar untuk lonceng di topbar Menu Utama. Semua modul memakai satu tabel `notifikasi`, satu
+ * baris per penerima (App\Models\Notifikasi, lewat `User::notifications()`), jadi tiap akun hanya melihat dan menandai
+ * notifikasinya sendiri. Modul dibedakan dari `type`:
  *
- * - `absensi`: absen masuk, absen pulang, dan pengajuan izin (tabel `notifications`). Status dibacanya bersama untuk
- *   semua penerima, dan hanya admin serta kepsek yang menerimanya (sama seperti halaman notifikasi absensi dulu).
- *   Dihapus otomatis 7 hari setelah dibuat (Notification::prunable).
- * - `sppd`: perubahan status pengajuan SPPD, per akun (tabel `sppd_notifications`).
- * - `supervisi`: jadwal/hasil supervisi guru, per akun. Satu tabel dengan SPPD (notifikasi database Laravel lewat
- *   `User::notifications()`), dibedakan dari `type` = SupervisiNotifikasi.
+ * - `absensi` (AbsensiNotifikasi): absen masuk, absen pulang, dan pengajuan izin; dikirim ke admin dan kepsek.
+ * - `supervisi` (SupervisiNotifikasi): jadwal/hasil supervisi guru.
+ * - `sppd` (selain dua di atas, PengajuanStatusChanged): perubahan status pengajuan SPPD.
+ *
+ * Semua notifikasi dihapus otomatis 30 hari setelah dibuat (Notifikasi::prunable).
  */
 class NotifikasiTerpusat
 {
     public const BATAS = 30;
-
-    public function bolehAbsensi(User $user): bool
-    {
-        return $user->is_active && ($user->isAdmin() || $user->peran === 'KEPSEK');
-    }
-
-    public function bolehSppd(User $user): bool
-    {
-        return $user->is_active && $user->isStaf();
-    }
 
     /**
      * @return array{items: list<array{id: string, sumber: string, tipe: string, judul: string, pesan: string, waktu: string, dibaca: bool}>, belumDibaca: int}
      */
     public function untuk(User $user): array
     {
-        $items = new Collection;
-        $belumDibaca = 0;
-
-        if ($this->bolehAbsensi($user)) {
-            $items = $items->concat(
-                Notification::orderByDesc('createdAt')->limit(self::BATAS)->get()->map(fn (Notification $n) => [
-                    'id' => $n->id,
-                    'sumber' => 'absensi',
-                    'tipe' => $n->type,
-                    'judul' => $n->judul,
-                    'pesan' => $n->pesan,
-                    'waktu' => $n->createdAt->toIso8601String(),
-                    'dibaca' => (bool) $n->isRead,
-                ])
-            );
-            $belumDibaca += Notification::where('isRead', false)->count();
-        }
-
-        if ($this->bolehSppd($user)) {
-            $items = $items->concat(
-                $user->notifications()->limit(self::BATAS)->get()->map(fn (SppdNotification $n) => $this->supervisi($n) ? [
-                    'id' => $n->id,
-                    'sumber' => 'supervisi',
-                    'tipe' => 'SUPERVISI',
-                    'judul' => 'Supervisi Guru',
-                    'pesan' => $n->data['pesan'] ?? 'Ada pembaruan pada supervisi.',
-                    'waktu' => $n->created_at->toIso8601String(),
-                    'dibaca' => $n->read_at !== null,
-                ] : [
-                    'id' => $n->id,
-                    'sumber' => 'sppd',
-                    'tipe' => 'SPPD',
-                    'judul' => 'Pengajuan SPPD',
-                    'pesan' => $n->data['pesan'] ?? 'Ada pembaruan pada pengajuan SPPD.',
-                    'waktu' => $n->created_at->toIso8601String(),
-                    'dibaca' => $n->read_at !== null,
-                ])
-            );
-            $belumDibaca += $user->unreadNotifications()->count();
-        }
+        $items = $user->notifications()->limit(self::BATAS)->get()->map(fn (Notifikasi $n) => [
+            'id' => $n->id,
+            'sumber' => $this->sumber($n),
+            'tipe' => $this->tipe($n),
+            'judul' => $this->judul($n),
+            'pesan' => $n->data['pesan'] ?? 'Ada pembaruan.',
+            'waktu' => $n->created_at->toIso8601String(),
+            'dibaca' => $n->read_at !== null,
+        ]);
 
         return [
-            'items' => $items->sortByDesc(fn (array $n) => strtotime($n['waktu']))->take(self::BATAS)->values()->all(),
-            'belumDibaca' => $belumDibaca,
+            'items' => $items->values()->all(),
+            'belumDibaca' => $user->unreadNotifications()->count(),
         ];
     }
 
-    /** Tandai satu notifikasi dibaca dan kembalikan halaman tujuannya. Null bila tidak ditemukan atau bukan haknya. */
+    /** Tandai satu notifikasi milik akun ini dibaca dan kembalikan halaman tujuannya. Null bila tidak ditemukan. */
     public function baca(User $user, string $sumber, string $id): ?string
     {
-        if ($sumber === 'absensi' && $this->bolehAbsensi($user)) {
-            $notifikasi = Notification::find($id);
-            $notifikasi?->update(['isRead' => true]);
-
-            return $notifikasi ? $this->tujuanAbsensi($notifikasi) : null;
+        $notifikasi = $user->notifications()->where('id', $id)->first();
+        if (! $notifikasi || $this->sumber($notifikasi) !== $sumber) {
+            return null;
         }
 
-        if (in_array($sumber, ['sppd', 'supervisi'], true) && $this->bolehSppd($user)) {
-            $notifikasi = $user->notifications()->where('id', $id)
-                ->where('type', $sumber === 'supervisi' ? '=' : '!=', SupervisiNotifikasi::class)
-                ->first();
-            $notifikasi?->markAsRead();
+        $notifikasi->markAsRead();
 
-            if (! $notifikasi) {
-                return null;
-            }
-
-            return $sumber === 'supervisi' ? $this->tujuanSupervisi($notifikasi) : $this->tujuanSppd($notifikasi);
-        }
-
-        return null;
+        return match ($sumber) {
+            'absensi' => $this->tujuanAbsensi($notifikasi),
+            'supervisi' => $this->tujuanSupervisi($notifikasi),
+            default => $this->tujuanSppd($notifikasi),
+        };
     }
 
-    private function supervisi(SppdNotification $notifikasi): bool
+    public function bacaSemua(User $user): void
     {
-        return $notifikasi->type === SupervisiNotifikasi::class;
+        $user->unreadNotifications()->update(['read_at' => now()]);
     }
 
-    private function tujuanSupervisi(SppdNotification $notifikasi): string
+    private function sumber(Notifikasi $notifikasi): string
+    {
+        return match ($notifikasi->type) {
+            AbsensiNotifikasi::class => 'absensi',
+            SupervisiNotifikasi::class => 'supervisi',
+            default => 'sppd',
+        };
+    }
+
+    private function tipe(Notifikasi $notifikasi): string
+    {
+        return match ($this->sumber($notifikasi)) {
+            'absensi' => $notifikasi->data['tipe'] ?? 'CHECKIN',
+            'supervisi' => 'SUPERVISI',
+            default => 'SPPD',
+        };
+    }
+
+    private function judul(Notifikasi $notifikasi): string
+    {
+        return match ($this->sumber($notifikasi)) {
+            'absensi' => $notifikasi->data['judul'] ?? 'Absensi',
+            'supervisi' => 'Supervisi Guru',
+            default => 'Pengajuan SPPD',
+        };
+    }
+
+    /** Tidak ada FK ke baris absen/izin tertentu, jadi diarahkan ke halaman yang disaring ke guru dan tanggalnya. */
+    private function tujuanAbsensi(Notifikasi $notifikasi): string
+    {
+        if (($notifikasi->data['tipe'] ?? null) === 'LEAVE_REQUEST') {
+            return '/persetujuan?status=all';
+        }
+
+        $tanggal = $notifikasi->data['tanggal'] ?? $notifikasi->created_at->toDateString();
+
+        return '/rekap?'.http_build_query(array_filter([
+            'from' => $tanggal,
+            'to' => $tanggal,
+            'guruId' => $notifikasi->data['guru_id'] ?? null,
+        ]));
+    }
+
+    private function tujuanSupervisi(Notifikasi $notifikasi): string
     {
         $supervisi = $notifikasi->data['supervisi_id'] ?? null;
 
         return $supervisi ? "/supervisi/{$supervisi}" : '/supervisi/dashboard';
     }
 
-    public function bacaSemua(User $user): void
-    {
-        if ($this->bolehAbsensi($user)) {
-            Notification::where('isRead', false)->update(['isRead' => true]);
-        }
-
-        if ($this->bolehSppd($user)) {
-            $user->unreadNotifications()->update(['read_at' => now()]);
-        }
-    }
-
-    /** Tidak ada FK ke baris absen/izin tertentu, jadi diarahkan ke halaman yang disaring ke guru dan tanggalnya. */
-    private function tujuanAbsensi(Notification $notifikasi): string
-    {
-        if ($notifikasi->type === 'LEAVE_REQUEST') {
-            return '/persetujuan?status=all';
-        }
-
-        $tanggal = $notifikasi->createdAt->toDateString();
-
-        return '/rekap?'.http_build_query(array_filter([
-            'from' => $tanggal,
-            'to' => $tanggal,
-            'guruId' => $notifikasi->guruId,
-        ]));
-    }
-
-    private function tujuanSppd(SppdNotification $notifikasi): string
+    private function tujuanSppd(Notifikasi $notifikasi): string
     {
         $pengajuan = $notifikasi->data['pengajuan_id'] ?? null;
 

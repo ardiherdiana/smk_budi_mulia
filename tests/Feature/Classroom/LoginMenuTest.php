@@ -127,7 +127,8 @@ class LoginMenuTest extends TestCase
             ->where('modul.0.key', 'website')->where('modul.1.key', 'skl')->where('modul.1.href', '/skl')
             ->where('modul.2.key', 'classroom')->where('modul.3.key', 'absensi')->where('modul.4.key', 'sppd')
             ->where('modul.5.key', 'supervisi')->where('modul.6.key', 'dataguru')->where('modul.6.href', '/data-guru')
-            ->where('modul.7.key', 'profil')->has('modul', 8));
+            ->where('modul.7.key', 'log')->where('modul.7.href', '/log-aktivitas')
+            ->where('modul.8.key', 'profil')->has('modul', 9));
         $this->assertDatabaseHas('profil_akun', ['role' => 'ADMIN']);
     }
 

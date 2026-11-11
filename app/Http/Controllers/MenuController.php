@@ -18,6 +18,7 @@ use Inertia\Inertia;
  * - SPPD: admin dan semua staf (KEPSEK, GURU, STAF); detail akses diatur role SPPD.
  * - Supervisi: admin, KEPSEK, GURU (kepsek/admin mengelola, guru melihat supervisinya dan tugas sebagai supervisor).
  * - Data Guru (`/data-guru`, data master guru untuk semua modul): admin mengelola, KEPSEK melihat.
+ * - Log Aktivitas (`/log-aktivitas`, log bersama semua modul, 30 hari terakhir): admin saja.
  * - Profil: semua akun (satu profil untuk semua modul).
  * Kartu harus sejalan dengan middleware rute (`peran:` Classroom, `staf:` absensi/SPPD/Supervisi).
  */
@@ -53,6 +54,9 @@ class MenuController extends Controller
         }
         if ($admin || $peran === 'KEPSEK') {
             $modul[] = ['key' => 'dataguru', 'href' => '/data-guru'];
+        }
+        if ($admin) {
+            $modul[] = ['key' => 'log', 'href' => '/log-aktivitas'];
         }
         $modul[] = ['key' => 'profil', 'href' => '/profil'];
 

@@ -39,7 +39,8 @@
         .identitas .titik { width: 9pt; font-weight: bold; }
         .skala span { display: inline-block; margin-right: 22pt; }
         .instrumen { width: 100%; }
-        .instrumen th, .instrumen td { border: 0.5pt solid #000; padding: 1pt 3pt; vertical-align: top; }
+        /* Sel docx tanpa margin atas/bawah, spasi baris 1,15. */
+        .instrumen th, .instrumen td { border: 0.5pt solid #000; padding: 0 3pt; line-height: 1.15; vertical-align: top; }
         .instrumen th { font-weight: bold; text-align: center; }
         .instrumen tr { page-break-inside: avoid; }
         .instrumen .c { text-align: center; }
@@ -126,7 +127,6 @@
         </tbody>
     </table>
 
-    <div style="page-break-inside: avoid;">
     <table class="rumus">
         <tr>
             <td>TOTAL SCORE</td>
@@ -150,7 +150,6 @@
         Pemberi Umpan Balik,
         <div class="ruang"></div>
         ( {{ $supervisi->supervisor?->namaTampil() ?? '______________________' }} )
-    </div>
     </div>
 </body>
 </html>

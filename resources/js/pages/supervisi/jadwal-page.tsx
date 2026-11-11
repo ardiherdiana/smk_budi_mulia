@@ -351,7 +351,7 @@ export function JadwalPage({ list, tahunAjaran, filter, bukaUntukGuru, opsi }: P
               )}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field data-invalid={!!errors.mapelId || undefined}>
+                <Field data-invalid={!!errors.mapelId || undefined} className="sm:col-span-2">
                   <FieldLabel htmlFor="mapelId">Mapel</FieldLabel>
                   <PilihNama id="mapelId" list={opsi.mapel} value={data.mapelId} placeholder="Tidak diisi" onChange={(v) => setData("mapelId", v)} />
                   <FieldError>{errors.mapelId}</FieldError>

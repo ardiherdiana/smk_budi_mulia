@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Skl;
 
 use App\Http\Controllers\Controller;
+use App\Models\LogAktivitas;
 use App\Models\PortalFile;
 use App\Models\User;
 use App\Services\PortalFileStorage;
+use App\Support\LogAktivitas\Perekam;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Exists;
@@ -15,7 +17,7 @@ use Inertia\Inertia;
 /** Berkas SKL dsb. Berkas tanpa pemilik = "gudang" (belum dibagikan ke siswa). */
 class PortalFileController extends Controller
 {
-    public function __construct(private PortalFileStorage $storage) {}
+    public function __construct(private PortalFileStorage $storage, private Perekam $perekam) {}
 
     public function index(Request $request)
     {
@@ -88,7 +90,18 @@ class PortalFileController extends Controller
             'user_id' => ['nullable', $this->aturanSiswa()],
         ]);
 
-        PortalFile::whereIn('id', $validated['ids'])->update(['user_id' => $validated['user_id'] ?? null]);
+        $jumlah = PortalFile::whereIn('id', $validated['ids'])->update(['user_id' => $validated['user_id'] ?? null]);
+
+        // Update massal tidak memicu event model, jadi dicatat langsung.
+        $tujuan = ($validated['user_id'] ?? null) ? User::find($validated['user_id']) : null;
+        $this->perekam->catat(
+            LogAktivitas::UBAH,
+            'SKL',
+            Perekam::namaPengguna($request->user()).($tujuan
+                ? " membagikan {$jumlah} berkas SKL ke \"".Perekam::namaPengguna($tujuan).'"'
+                : " mengembalikan {$jumlah} berkas SKL ke gudang"),
+            'Berkas SKL',
+        );
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Berkas berhasil dibagikan']);
     }

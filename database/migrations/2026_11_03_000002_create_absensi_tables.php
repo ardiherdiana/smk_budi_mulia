@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\Schema;
  * - 9 kolom yang menunjuk pengguna bertipe `int` dan merujuk `users.id` (di absensi ULID string);
  * - tabel sisa SPPD yang tidak dipakai (`sppd_sessions`, `sppd_cache*`, `sppd_jobs`, `sppd_job_batches`,
  *   `sppd_failed_jobs`) tidak dibuat: sesi/cache memakai driver file dan antrean `sync`.
- * Kolom polimorfik spatie (`model_has_roles.model_id`) dan `sppd_notifications.notifiable_id` tetap varchar seperti
- * di absensi; isinya id `users` dalam bentuk teks. Data lama dipindah oleh `php artisan gabung:impor-absensi`.
+ * - notifikasi semua modul satu tabel per akun `notifikasi` (bentuk notifikasi database Laravel, sama dengan
+ *   `sppd_notifications` absensi); tabel `notifications` absensi (status dibaca bersama) tidak dibuat lagi.
+ * Kolom polimorfik spatie (`model_has_roles.model_id`) dan `notifikasi.notifiable_id` tetap varchar seperti di
+ * absensi; isinya id `users` dalam bentuk teks. Data lama dipindah oleh `php artisan gabung:impor-absensi`.
  */
 return new class extends Migration
 {
@@ -109,19 +111,6 @@ return new class extends Migration
             $table->string('lampiranUrl', 191)->nullable();
 
             $table->foreign('guruId', 'leave_requests_guruId_fkey')->references('id')->on('guru')->cascadeOnDelete()->cascadeOnUpdate();
-        });
-
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->string('id', 191)->primary();
-            $table->enum('type', ['CHECKIN', 'CHECKOUT', 'LEAVE_REQUEST']);
-            $table->string('judul', 191);
-            $table->string('pesan', 191);
-            $table->string('guruId', 191)->nullable();
-            $table->boolean('isRead')->default(false);
-            $table->dateTime('createdAt', 3)->useCurrent();
-
-            $table->index('isRead', 'notifications_isRead_idx');
-            $table->foreign('guruId', 'notifications_guruId_fkey')->references('id')->on('guru')->nullOnDelete()->cascadeOnUpdate();
         });
 
         Schema::create('push_subscriptions', function (Blueprint $table) {
@@ -259,7 +248,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('sppd_notifications', function (Blueprint $table) {
+        // Notifikasi semua modul (absensi, SPPD, Supervisi), satu baris per penerima. Dihapus 30 hari setelah dibuat
+        // (App\Models\Notifikasi::prunable).
+        Schema::create('notifikasi', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type', 191);
             $table->string('notifiable_type', 191);
@@ -268,7 +259,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
 
-            $table->index(['notifiable_type', 'notifiable_id'], 'sppd_notifications_notifiable_type_id_index');
+            $table->index(['notifiable_type', 'notifiable_id'], 'notifikasi_notifiable_type_id_index');
         });
 
         Schema::create('laporan_perjalanans', function (Blueprint $table) {
@@ -293,10 +284,10 @@ return new class extends Migration
     public function down(): void
     {
         foreach ([
-            'laporan_perjalanan_fotos', 'laporan_perjalanans', 'sppd_notifications', 'pengaturans', 'pengajuan_pengikut',
+            'laporan_perjalanan_fotos', 'laporan_perjalanans', 'notifikasi', 'pengaturans', 'pengajuan_pengikut',
             'log_audits', 'pencairans', 'sppds', 'pengajuan_sppds',
             'role_has_permissions', 'model_has_roles', 'model_has_permissions', 'roles', 'permissions',
-            'push_subscriptions', 'notifications', 'leave_requests', 'briefing_attendance', 'attendance', 'guru',
+            'push_subscriptions', 'leave_requests', 'briefing_attendance', 'attendance', 'guru',
             'holidays', 'jadwal_hari', 'settings',
         ] as $tabel) {
             Schema::dropIfExists($tabel);

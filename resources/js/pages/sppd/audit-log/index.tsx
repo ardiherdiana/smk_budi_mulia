@@ -32,12 +32,12 @@ export default function Index() {
 
     return (
         <>
-            <Head title="Log Audit" />
+            <Head title="Riwayat SPPD" />
 
             <div className="flex flex-col gap-4">
                 <div>
-                    <h1 className="text-xl font-semibold">Log Audit</h1>
-                    <p className="text-sm text-muted-foreground">Jejak seluruh aksi dan perpindahan status di sistem</p>
+                    <h1 className="text-xl font-semibold">Riwayat SPPD</h1>
+                    <p className="text-sm text-muted-foreground">Jejak persetujuan dan perpindahan status pengajuan SPPD, disimpan permanen</p>
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border">

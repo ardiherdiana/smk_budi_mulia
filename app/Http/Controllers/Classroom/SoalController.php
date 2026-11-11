@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Classroom;
 use App\Models\Classroom\Percobaan;
 use App\Models\Classroom\Post;
 use App\Models\Classroom\Soal;
+use App\Models\LogAktivitas;
 use App\Services\Classroom\Impor\DokumenTidakDapatDibaca;
 use App\Services\Classroom\Impor\SoalImporter;
 use App\Services\Classroom\PostPublisher;
 use App\Services\Classroom\SoalGambarService;
 use App\Services\MediaService;
 use App\Support\Classroom\PembagiPoin;
+use App\Support\LogAktivitas\Perekam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,7 +21,7 @@ use Inertia\Inertia;
 
 class SoalController extends Controller
 {
-    public function __construct(private PostPublisher $publisher, private SoalGambarService $gambar) {}
+    public function __construct(private PostPublisher $publisher, private SoalGambarService $gambar, private Perekam $perekam) {}
 
     /** Editor satu halaman: seluruh soal ujian diedit sekaligus. */
     public function edit(Request $request, Post $post)
@@ -203,6 +205,15 @@ class SoalController extends Controller
 
             $post->soal()->whereNotIn('id', $dipakai)->delete();
         });
+
+        // Soal tidak didaftarkan di log per baris (satu simpan bisa puluhan soal); dicatat satu baris di sini.
+        $this->perekam->catat(
+            LogAktivitas::UBAH,
+            'Classroom',
+            Perekam::namaPengguna($request->user()).' menyimpan '.count($bersih).' soal ujian "'.$post->judul.'"',
+            'Soal ujian',
+            $post,
+        );
 
         $this->gambar->pindahkanSementara($peta);
         $this->gambar->lepas($pathLama);

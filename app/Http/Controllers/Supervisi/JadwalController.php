@@ -7,6 +7,7 @@ use App\Models\Classroom\Akun;
 use App\Models\Classroom\Kelas;
 use App\Models\Classroom\Mapel;
 use App\Models\Classroom\Rombel;
+use App\Models\Notifikasi;
 use App\Models\Supervisi\Supervisi;
 use App\Models\User;
 use App\Notifications\Supervisi\SupervisiNotifikasi;
@@ -106,7 +107,7 @@ class JadwalController extends Controller
 
         DB::transaction(function () use ($supervisi) {
             // Notifikasi yang menautkan jadwal ini akan membuka halaman 404; ikut dibersihkan.
-            DB::table('sppd_notifications')->where('type', SupervisiNotifikasi::class)
+            Notifikasi::where('type', SupervisiNotifikasi::class)
                 ->where('data', 'like', '%"supervisi_id":"'.$supervisi->id.'"%')->delete();
             $supervisi->delete();
         });

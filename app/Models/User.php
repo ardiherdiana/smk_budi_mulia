@@ -6,7 +6,6 @@ use App\Models\Classroom\Akun;
 use App\Models\Classroom\Kelas;
 use App\Models\Classroom\Post as ClassroomPost;
 use App\Models\Sppd\PengajuanSppd;
-use App\Models\Sppd\SppdNotification;
 use App\Models\Supervisi\Supervisi;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -212,6 +211,18 @@ class User extends Authenticatable
     }
 
     /**
+     * Penerima notifikasi absensi (absen masuk/pulang, pengajuan izin): admin dan kepala sekolah yang aktif, sama dengan
+     * NotifikasiTerpusat::bolehAbsensi(). Akun admin tanpa profil dianggap aktif.
+     */
+    #[Scope]
+    protected function penerimaNotifikasiAbsensi(Builder $query): void
+    {
+        $query->where(fn (Builder $q) => $q->where('role', 'admin')
+            ->orWhereHas('akun', fn (Builder $a) => $a->where('role', 'KEPSEK')))
+            ->whereDoesntHave('akun', fn (Builder $a) => $a->where('is_active', false));
+    }
+
+    /**
      * Sengaja tanpa tipe kembalian `Attribute`: Eloquent menganggap setiap method bertipe kembalian Attribute sebagai
      * accessor (di sini "atribut_profil") dan memanggilnya tanpa argumen saat serialisasi.
      *
@@ -302,14 +313,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Notifikasi SPPD masuk ke `sppd_notifications`, bukan tabel `notifications` milik absensi yang bentuknya lain
-     * (lihat App\Models\Notification).
+     * Notifikasi semua modul (absensi, SPPD, Supervisi) di tabel bersama `notifikasi` (lihat App\Models\Notifikasi).
      *
-     * @return MorphMany<SppdNotification, $this>
+     * @return MorphMany<Notifikasi, $this>
      */
     public function notifications(): MorphMany
     {
-        return $this->morphMany(SppdNotification::class, 'notifiable')
+        return $this->morphMany(Notifikasi::class, 'notifiable')
             ->orderBy('created_at', 'desc');
     }
 

@@ -20,6 +20,7 @@ const BARE_PAGES = new Set([
   "portal-page",
   "module-picker-page",
   "profil-page",
+  "log-aktivitas-page",
   "data-guru-page",
   "classroom/ujian/kerjakan-page",
   "absensi/kiosk-page",

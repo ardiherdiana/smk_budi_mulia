@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classroom\Akun;
+use App\Models\LogAktivitas;
 use App\Models\User;
+use App\Support\LogAktivitas\Perekam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +17,8 @@ use Inertia\Inertia;
 
 class LoginController extends Controller
 {
+    public function __construct(private Perekam $perekam) {}
+
     public function create()
     {
         return Inertia::render('login-page');
@@ -40,6 +44,8 @@ class LoginController extends Controller
 
         if (! $user) {
             RateLimiter::hit($throttleKey, 60);
+            // Identitas yang dicoba dicatat untuk penelusuran; sandi tidak pernah disimpan.
+            $this->perekam->catat(LogAktivitas::GAGAL_MASUK, 'Akun', 'Gagal masuk sebagai "'.$credentials['email'].'"', 'Akun');
 
             throw ValidationException::withMessages(['email' => 'Email/username atau password salah']);
         }

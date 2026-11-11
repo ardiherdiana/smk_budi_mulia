@@ -21,6 +21,9 @@ use stdClass;
  * dipakai akun lain, perintah berhenti dan melaporkannya: keputusan penggabungan ada di manusia. `absensi_user_id`
  * menjadi peta id lama -> id baru dan dipakai untuk menerjemahkan 9 kolom pengguna + 2 kolom polimorfik.
  *
+ * Notifikasi SPPD (`sppd_notifications`) masuk ke tabel notifikasi bersama `notifikasi`; notifikasi absensi lama
+ * (`notifications`) tidak disalin (lihat TUJUAN dan DILEWATI).
+ *
  * Kolom TIMESTAMP (tabel SPPD, spatie, notifikasi SPPD) dibaca dengan zona sesi absensi produksi (--zona-sumber)
  * supaya jam yang tampil tidak bergeser saat ditulis ulang di bawah zona sesi gabungan (+07:00). Kolom DATETIME absensi
  * tidak terpengaruh zona sesi.
@@ -59,7 +62,6 @@ class GabungImporAbsensi extends Command
         'attendance' => [],
         'briefing_attendance' => [],
         'leave_requests' => [],
-        'notifications' => [],
         'push_subscriptions' => ['userId'],
         'role_has_permissions' => [],
         'model_has_permissions' => ['model_id'],
@@ -80,6 +82,20 @@ class GabungImporAbsensi extends Command
      * dibuka (SettingsService, JadwalService). Isinya DITIMPA nilai absensi lama, bukan dianggap "sudah berisi data".
      */
     public const KONFIGURASI = ['settings', 'jadwal_hari'];
+
+    /**
+     * Tabel sumber yang namanya berbeda di basis data gabungan. Notifikasi SPPD masuk ke tabel notifikasi bersama
+     * semua modul (bentuk kolomnya sama).
+     *
+     * @var array<string, string>
+     */
+    public const TUJUAN = ['sppd_notifications' => 'notifikasi'];
+
+    /**
+     * Tabel sumber yang sengaja tidak disalin: notifikasi absensi lama (status dibaca bersama, umurnya maksimal 7 hari)
+     * hanya pemberitahuan sesaat; notifikasi absensi baru dikirim per orang ke tabel `notifikasi`.
+     */
+    public const DILEWATI = ['notifications'];
 
     /** @var array<string, int> id pengguna absensi (ULID) => id `users` gabungan */
     private array $peta = [];
@@ -129,6 +145,9 @@ class GabungImporAbsensi extends Command
                     $this->salinTabel($sumber, $tabel, $kolomPengguna);
                 }
             });
+            foreach (self::DILEWATI as $tabel) {
+                $this->line(sprintf('  %-28s %6s (notifikasi absensi lama, sengaja tidak disalin)', $tabel, 'lewat'));
+            }
         } catch (RuntimeException $e) {
             $this->error('Impor dibatalkan, tidak ada yang ditulis: '.$e->getMessage());
 
@@ -161,7 +180,7 @@ class GabungImporAbsensi extends Command
             throw new RuntimeException('Basis data absensi belum menjalankan semua migrasinya ('.self::MIGRASI_TERAKHIR.'). Jalankan `php artisan migrate` dengan kode absensi di basis data sumber dulu.');
         }
 
-        foreach ([...array_keys(self::TABEL), 'roles', 'permissions'] as $tabel) {
+        foreach ([...array_map($this->tujuan(...), array_keys(self::TABEL)), 'roles', 'permissions'] as $tabel) {
             if (! Schema::hasTable($tabel)) {
                 throw new RuntimeException("Tabel {$tabel} belum ada di basis data gabungan. Jalankan `php artisan migrate` dulu.");
             }
@@ -169,7 +188,7 @@ class GabungImporAbsensi extends Command
 
         // Tabel konfigurasi boleh sudah berisi nilai default (dibuat otomatis saat halaman absensi dibuka); ditimpa sumber.
         $berisi = array_values(array_filter(
-            array_diff(array_keys(self::TABEL), self::KONFIGURASI),
+            array_map($this->tujuan(...), array_diff(array_keys(self::TABEL), self::KONFIGURASI)),
             fn ($t) => DB::table($t)->exists(),
         ));
         if ($berisi !== []) {
@@ -337,8 +356,9 @@ class GabungImporAbsensi extends Command
     /** @param  list<string>  $kolomPengguna */
     private function salinTabel(Connection $sumber, string $tabel, array $kolomPengguna): void
     {
+        $tujuan = $this->tujuan($tabel);
         $kolomSumber = $sumber->getSchemaBuilder()->getColumnListing($tabel);
-        $kolomTujuan = Schema::getColumnListing($tabel);
+        $kolomTujuan = Schema::getColumnListing($tujuan);
         sort($kolomSumber);
         sort($kolomTujuan);
         if ($kolomSumber !== $kolomTujuan) {
@@ -374,10 +394,21 @@ class GabungImporAbsensi extends Command
         }
 
         foreach ($baris->chunk(500) as $potongan) {
-            DB::table($tabel)->insert($potongan->values()->all());
+            DB::table($tujuan)->insert($potongan->values()->all());
         }
 
-        $this->line(sprintf('  %-28s %6d baris', $tabel, $baris->count()));
+        $this->line(sprintf('  %-28s %6d baris', $this->labelTabel($tabel), $baris->count()));
+    }
+
+    /** Nama tabel di basis data gabungan untuk tabel sumber ini. */
+    private function tujuan(string $tabel): string
+    {
+        return self::TUJUAN[$tabel] ?? $tabel;
+    }
+
+    private function labelTabel(string $tabel): string
+    {
+        return $this->tujuan($tabel) === $tabel ? $tabel : "{$tabel} -> {$this->tujuan($tabel)}";
     }
 
     private function verifikasi(Connection $sumber): bool
@@ -392,8 +423,8 @@ class GabungImporAbsensi extends Command
 
         foreach (array_keys(self::TABEL) as $tabel) {
             $a = $sumber->table($tabel)->count();
-            $b = DB::table($tabel)->count();
-            $baris[] = [$tabel, $a, $b, $a === $b ? 'ok' : 'BEDA'];
+            $b = DB::table($this->tujuan($tabel))->count();
+            $baris[] = [$this->labelTabel($tabel), $a, $b, $a === $b ? 'ok' : 'BEDA'];
             $cocok = $cocok && $a === $b;
         }
 

@@ -64,11 +64,6 @@ class Guru extends Model
         return $this->hasMany(LeaveRequest::class, 'guruId');
     }
 
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class, 'guruId');
-    }
-
     public function briefingAttendances(): HasMany
     {
         return $this->hasMany(BriefingAttendance::class, 'guruId');

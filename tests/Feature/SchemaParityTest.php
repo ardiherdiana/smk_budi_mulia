@@ -82,17 +82,19 @@ class SchemaParityTest extends TestCase
         ];
         // Modul absensi + SPPD (migrasi 2026_11_03_000002_create_absensi_tables); tanpa tabel `users` sendiri.
         $absensi = [
-            'attendance', 'briefing_attendance', 'guru', 'holidays', 'jadwal_hari', 'leave_requests', 'notifications',
-            'push_subscriptions', 'settings',
+            'attendance', 'briefing_attendance', 'guru', 'holidays', 'jadwal_hari', 'leave_requests',
+            'notifikasi', 'push_subscriptions', 'settings',
             'model_has_permissions', 'model_has_roles', 'permissions', 'role_has_permissions', 'roles',
             'laporan_perjalanan_fotos', 'laporan_perjalanans', 'log_audits', 'pencairans', 'pengajuan_pengikut',
-            'pengajuan_sppds', 'pengaturans', 'sppd_notifications', 'sppds',
+            'pengajuan_sppds', 'pengaturans', 'sppds',
         ];
+        // Log aktivitas bersama semua modul (migrasi 2026_11_11_000001_create_log_aktivitas_table).
+        $bersama = ['log_aktivitas'];
         // Modul Supervisi Guru (migrasi 2026_11_07_000001_create_supervisi_tables).
-        $supervisi = ['supervisi', 'supervisi_butir', 'supervisi_skor'];
+        $supervisi = ['supervisi', 'supervisi_skor'];
 
         $this->assertSame(
-            collect([...$production, ...$classroom, ...$absensi, ...$supervisi, 'migrations'])->sort()->values()->all(),
+            collect([...$production, ...$classroom, ...$absensi, ...$supervisi, ...$bersama, 'migrations'])->sort()->values()->all(),
             $tables,
         );
     }

@@ -2,21 +2,21 @@
 
 namespace App\Services;
 
-use App\Models\Notification;
+use App\Models\User;
+use App\Notifications\Absensi\AbsensiNotifikasi;
+use Illuminate\Support\Facades\Notification;
 
 /**
- * Membuat notifikasi absensi (absen masuk, pulang, pengajuan izin). Menampilkan dan menandai dibaca ada di
- * NotifikasiTerpusat (lonceng topbar Menu Utama).
+ * Mengirim notifikasi absensi (absen masuk, pulang, pengajuan izin) ke tiap admin dan kepala sekolah aktif, di tabel
+ * bersama `notifikasi`. Menampilkan dan menandai dibaca ada di NotifikasiTerpusat (lonceng topbar Menu Utama).
  */
 class NotificationService
 {
-    public function create(string $type, string $judul, string $pesan, ?string $guruId = null): Notification
+    public function create(string $type, string $judul, string $pesan, ?string $guruId = null): void
     {
-        return Notification::create([
-            'type' => $type,
-            'judul' => $judul,
-            'pesan' => $pesan,
-            'guruId' => $guruId,
-        ]);
+        $penerima = User::penerimaNotifikasiAbsensi()->get();
+        if ($penerima->isNotEmpty()) {
+            Notification::send($penerima, new AbsensiNotifikasi($type, $judul, $pesan, $guruId));
+        }
     }
 }

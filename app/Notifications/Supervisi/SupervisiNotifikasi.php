@@ -7,8 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notifikasi modul Supervisi (dijadwalkan, diubah, selesai, sudah dibaca guru). Disimpan lewat channel database yang
- * sama dengan SPPD (`User::notifications()` -> `sppd_notifications`); NotifikasiTerpusat membedakannya dari `type`.
+ * Notifikasi modul Supervisi (dijadwalkan, diubah, dibatalkan, selesai). Disimpan di tabel bersama `notifikasi`
+ * (`User::notifications()`); NotifikasiTerpusat membedakannya dari `type`.
  */
 class SupervisiNotifikasi extends Notification
 {

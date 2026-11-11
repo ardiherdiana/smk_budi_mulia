@@ -8,6 +8,7 @@ import {
   FileCheck2,
   Globe,
   GraduationCap,
+  History,
   LogOut,
   Send,
 } from "lucide-react"
@@ -17,7 +18,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-type ModuleKey = "website" | "skl" | "classroom" | "absensi" | "sppd" | "supervisi" | "dataguru" | "profil"
+type ModuleKey = "website" | "skl" | "classroom" | "absensi" | "sppd" | "supervisi" | "dataguru" | "log" | "profil"
 
 interface ModuleCard {
   title: string
@@ -61,6 +62,11 @@ const CARDS: Record<ModuleKey, ModuleCard> = {
     description: "Data master guru untuk semua modul: akun, foto, dan QR absen",
     icon: Contact,
   },
+  log: {
+    title: "Log Aktivitas",
+    description: "Jejak tambah, ubah, hapus data dan masuk akun di semua modul (30 hari)",
+    icon: History,
+  },
   profil: {
     title: "Profil",
     description: "Data akun, foto, dan password untuk semua modul",
@@ -69,7 +75,7 @@ const CARDS: Record<ModuleKey, ModuleCard> = {
 }
 
 // 2 kartu (siswa) berdampingan; 3 kartu satu baris; 4 kartu 2x2; 5-6 kartu (guru, kepsek) 3 kolom di layar lebar;
-// 8 kartu (admin) 4 kolom supaya dua baris penuh.
+// 8 kartu 4 kolom supaya dua baris penuh; 9 kartu (admin) 3 kolom, tiga baris penuh.
 function kolomGrid(jumlah: number) {
   if (jumlah === 3) return "sm:grid-cols-3"
   if (jumlah === 8) return "sm:grid-cols-2 lg:grid-cols-4"
